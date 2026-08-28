@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Random Tên & Địa Chỉ</title>
 
     <style>
@@ -206,10 +207,18 @@
 <script>
 
 /* =========================================================
-   1. DỮ LIỆU TÊN
+   1. DỮ LIỆU TÊN NAM / NỮ
+
+   Nam: 23 họ, 23 tên đệm, 65 tên.
+   Nữ:  23 họ, 23 tên đệm, 65 tên.
 ========================================================= */
 
-const ho = [
+
+/* =====================
+   HỌ NAM
+===================== */
+
+const hoNam = [
     "Nguyễn",
     "Trần",
     "Lê",
@@ -224,10 +233,23 @@ const ho = [
     "Ngô",
     "Dương",
     "Lý",
-    "Mai"
+    "Mai",
+    "Trương",
+    "Đinh",
+    "Vũ",
+    "Tạ",
+    "Cao",
+    "Châu",
+    "Tô",
+    "La"
 ];
 
-const tenDem = [
+
+/* =====================
+   TÊN ĐỆM NAM
+===================== */
+
+const tenDemNam = [
     "Văn",
     "Hữu",
     "Minh",
@@ -242,10 +264,23 @@ const tenDem = [
     "Xuân",
     "Thành",
     "Công",
-    "Phúc"
+    "Phúc",
+    "Đình",
+    "Trung",
+    "Quang",
+    "Khắc",
+    "Bá",
+    "Sỹ",
+    "Trường",
+    "Thế"
 ];
 
-const ten = [
+
+/* =====================
+   TÊN NAM
+===================== */
+
+const tenNam = [
     "An",
     "Anh",
     "Bảo",
@@ -288,7 +323,164 @@ const ten = [
     "Trọng",
     "Vinh",
     "Việt",
-    "Vũ"
+    "Vũ",
+    "Cường",
+    "Chí",
+    "Dũng",
+    "Giang",
+    "Hậu",
+    "Kiên",
+    "Lộc",
+    "Mạnh",
+    "Nghiêm",
+    "Nhật",
+    "Quang",
+    "Sơn",
+    "Thắng",
+    "Thịnh",
+    "Tiến",
+    "Toàn",
+    "Trung",
+    "Tín",
+    "Vượng",
+    "Xuân",
+    "Dương",
+    "Khải"
+];
+
+
+/* =====================
+   HỌ NỮ
+===================== */
+
+const hoNu = [
+    "Nguyễn",
+    "Trần",
+    "Lê",
+    "Phạm",
+    "Huỳnh",
+    "Phan",
+    "Võ",
+    "Đặng",
+    "Bùi",
+    "Đỗ",
+    "Hồ",
+    "Ngô",
+    "Dương",
+    "Lý",
+    "Mai",
+    "Trương",
+    "Đinh",
+    "Vũ",
+    "Tạ",
+    "Cao",
+    "Châu",
+    "Tô",
+    "La"
+];
+
+
+/* =====================
+   TÊN ĐỆM NỮ
+===================== */
+
+const tenDemNu = [
+    "Thị",
+    "Ngọc",
+    "Thu",
+    "Kim",
+    "Thanh",
+    "Minh",
+    "Bảo",
+    "Hồng",
+    "Diệu",
+    "Mỹ",
+    "Phương",
+    "Quỳnh",
+    "Khánh",
+    "Gia",
+    "Hoài",
+    "Anh",
+    "Tú",
+    "Tường",
+    "Kiều",
+    "Nhật",
+    "Thùy",
+    "Ánh",
+    "Xuân"
+];
+
+
+/* =====================
+   TÊN NỮ
+===================== */
+
+const tenNu = [
+    "An",
+    "Anh",
+    "Ân",
+    "Bích",
+    "Chi",
+    "Châu",
+    "Diễm",
+    "Dung",
+    "Giang",
+    "Hà",
+    "Hân",
+    "Hiền",
+    "Hoa",
+    "Hồng",
+    "Hương",
+    "Khánh",
+    "Lan",
+    "Linh",
+    "Loan",
+    "Ly",
+    "Mai",
+    "My",
+    "Nghi",
+    "Ngân",
+    "Ngọc",
+    "Như",
+    "Oanh",
+    "Phương",
+    "Quỳnh",
+    "Thảo",
+    "Thư",
+    "Thúy",
+    "Trang",
+    "Trâm",
+    "Trinh",
+    "Tú",
+    "Uyên",
+    "Vân",
+    "Vy",
+    "Xuân",
+    "Yến",
+    "Yến Nhi",
+    "Ái",
+    "Băng",
+    "Cẩm",
+    "Đan",
+    "Đào",
+    "Hạnh",
+    "Hân Nhi",
+    "Huyền",
+    "Khanh",
+    "Kiều",
+    "Lam",
+    "Lệ",
+    "Mộng",
+    "Nhã",
+    "Nhi",
+    "Quyên",
+    "Tâm",
+    "Tiên",
+    "Tuyết",
+    "Vi",
+    "Yên",
+    "Đông",
+    "Ánh"
 ];
 
 
@@ -297,21 +489,36 @@ const ten = [
 ========================================================= */
 
 const duong = [
-    "Đường Nguyễn Huệ",
     "Đường Lê Lợi",
     "Đường Trần Hưng Đạo",
-    "Đường Hai Bà Trưng",
-    "Đường Lý Tự Trọng",
-    "Đường Nam Kỳ Khởi Nghĩa",
-    "Đường Nguyễn Thị Minh Khai",
-    "Đường Phan Đình Phùng",
-    "Đường Võ Thị Sáu",
-    "Đường Hoàng Hoa Thám",
-    "Đường Đinh Tiên Hoàng",
-    "Đường Cách Mạng Tháng Tám",
-    "Đường Phạm Ngũ Lão",
+    "Đường Quang Trung",
+    "Đường Nguyễn Trãi",
+    "Đường Võ Nguyên Giáp",
+    "Đường Nguyễn Thái Học",
     "Đường Ngô Quyền",
-    "Đường Nguyễn Thái Học"
+    "Đường Lý Thường Kiệt",
+    "Đường Đinh Tiên Hoàng",
+    "Đường Lê Thánh Tông",
+    "Đường Trần Phú",
+    "Đường Phan Châu Trinh",
+    "Đường Phan Bội Châu",
+    "Đường Hai Bà Trưng",
+    "Đường Trần Quốc Toản",
+    "Đường Phạm Ngũ Lão",
+    "Đường Nguyễn Huệ",
+    "Đường Võ Thị Sáu",
+    "Đường Lý Tự Trọng",
+    "Đường Nguyễn Văn Cừ",
+    "Đường Cách Mạng Tháng Tám",
+    "Đường Độc Lập",
+    "Đường Giải Phóng",
+    "Đường Thống Nhất",
+    "Đường Điện Biên Phủ",
+    "Đường 30 Tháng 4",
+    "Đường 2 Tháng 9",
+    "Đường 19 Tháng 5",
+    "Đường Hùng Vương",
+    "Đường Bạch Đằng"
 ];
 
 
@@ -342,20 +549,17 @@ const loaiDiaDiem = [
     "Quán nhậu",
     "Khách sạn",
     "Khu nghỉ dưỡng",
-    "Sân vận động",
+    "Sân bóng đá",
     "Phòng tập gym",
     "Câu lạc bộ bida",
     "Sân cầu lông",
-    "Sân bóng đá",
+    "Sân Pickleball",
     "Hồ bơi",
     "Tiệm net",
     "Quán karaoke",
-    "Khu du lịch",
     "Khu vui chơi",
     "Nhà thiếu nhi",
-    "Chợ",
     "Tiệm tạp hóa",
-    "Siêu thị",
     "Trung tâm thương mại",
     "Cửa hàng tiện lợi",
     "Tiệm vàng",
@@ -369,266 +573,40 @@ const loaiDiaDiem = [
     "Cửa hàng thời trang",
     "Cửa hàng giày dép",
     "Tiệm sửa xe",
-    "Trạm xăng",
-    "Tiệm kính thuốc",
+    "Cây xăng",
+    "Tiệm kính mắt",
     "Cửa hàng điện thoại",
     "Cửa hàng điện máy",
-    "Trường mầm non",
-    "Trường tiểu học",
-    "Trường THCS",
-    "Trường THPT",
-    "Trường đại học",
-    "Trường cao đẳng",
     "Trung tâm ngoại ngữ",
     "Trung tâm tin học",
-    "Bệnh viện",
     "Phòng khám",
     "Tiệm thuốc tây",
     "Nhà thuốc",
     "Nha khoa",
-    "Trạm y tế",
     "Phòng chụp X-quang",
     "Phòng xét nghiệm",
     "Trung tâm tiêm chủng",
     "Bệnh viện mắt",
     "Phòng khám thú y",
-    "Trạm xe buýt",
-    "Bến xe",
-    "Nhà văn hóa",
     "Thư viện",
+    "Tiệm đồng hồ",
+    "Sạp thịt heo",
+    "Quán ăn",
+    "Quán lẩu bò",
+    "Quán lẩu dê",
+    "Tiệm cá cảnh",
+    "Vật liệu xây dựng",
+    "Nhà may",
+    "Cửa hàng quần áo",
+    "Cửa hàng đồ gia dụng",
+    "Store sữa",
+    "Tiệm sửa xe",
+    "Tiệm vải"
 ];
 
 
 /* =========================================================
-   4. TÊN DÙNG CHO ĐỊA ĐIỂM
-   Không lấy từ bộ tên người ở phía trên.
-========================================================= */
-
-const tenDiaDiem = [
-    "Thanh Bình",
-    "Hoàng Gia",
-    "Minh Tâm",
-    "Hồng Phúc",
-    "Phú Quý",
-    "An Khang",
-    "Gia Hưng",
-    "Tân Thành",
-    "Ngọc Lan",
-    "Kim Anh",
-    "Hương Việt",
-    "Sông Tiền",
-    "Miền Tây",
-    "Mộc Nhiên",
-    "Vườn Xanh",
-    "Hạnh Phúc",
-    "Phương Nam",
-    "Mỹ Lệ",
-    "Đông Dương",
-    "Thịnh Phát",
-    "Thiên Ân",
-    "Hải Đăng",
-    "Hoàng Long",
-    "Tân Phú",
-    "Phúc Lộc",
-    "Bình Minh",
-    "Ngọc Mai",
-    "Xuân Hồng",
-    "Mai Vàng",
-    "Sen Việt",
-
-    "Hồng Ân",
-    "Tân Hưng",
-    "Phú Hưng",
-    "Vĩnh Phát",
-    "Vĩnh Hưng",
-    "Đại Phát",
-    "Đại Thành",
-    "Đại Lộc",
-    "Phúc An",
-    "Phúc Thành",
-    "Phúc Hưng",
-    "Phúc Thịnh",
-    "An Phú",
-    "An Thành",
-    "An Bình",
-    "An Lộc",
-    "An Nhiên",
-    "An Tâm",
-    "An Gia",
-    "An Việt",
-
-    "Minh Anh",
-    "Minh Châu",
-    "Minh Khang",
-    "Minh Phát",
-    "Minh Quân",
-    "Minh Hòa",
-    "Minh Đức",
-    "Minh Thành",
-    "Minh Phúc",
-    "Minh Long",
-    "Minh Tân",
-    "Minh Hải",
-    "Minh Ngọc",
-    "Minh Khôi",
-    "Minh Nhật",
-    "Minh Quang",
-    "Minh Thư",
-    "Minh Hương",
-    "Minh Châu",
-    "Minh Phương",
-
-    "Ngọc Anh",
-    "Ngọc Hân",
-    "Ngọc Hà",
-    "Ngọc Hương",
-    "Ngọc Thảo",
-    "Ngọc Trâm",
-    "Ngọc Khánh",
-    "Ngọc Phương",
-    "Ngọc Bích",
-    "Ngọc Diệp",
-    "Ngọc Quang",
-    "Ngọc Sơn",
-    "Ngọc Thành",
-    "Ngọc Phát",
-    "Ngọc Hòa",
-    "Ngọc Tâm",
-    "Ngọc Vân",
-    "Ngọc Linh",
-    "Ngọc Tiến",
-    "Ngọc Trí",
-
-    "Tân Bình",
-    "Tân An",
-    "Tân Lộc",
-    "Tân Phát",
-    "Tân Hòa",
-    "Tân Minh",
-    "Tân Quang",
-    "Tân Đức",
-    "Tân Phúc",
-    "Tân Việt",
-    "Tân Long",
-    "Tân Hải",
-    "Tân Thành",
-    "Tân Thịnh",
-    "Tân Hưng",
-    "Tân Lợi",
-    "Tân Tiến",
-    "Tân Vinh",
-    "Tân Châu",
-    "Tân Xuân",
-
-    "Hải Vân",
-    "Hải Nam",
-    "Hải Sơn",
-    "Hải Phong",
-    "Hải Bình",
-    "Hải Minh",
-    "Hải Thành",
-    "Hải Phúc",
-    "Hải Long",
-    "Hải Âu",
-    "Hải Triều",
-    "Hải Đường",
-    "Hải Nguyên",
-    "Hải An",
-    "Hải Việt",
-    "Hải Hưng",
-    "Hải Thịnh",
-    "Hải Quang",
-    "Hải Lâm",
-    "Hải Yến",
-
-    "Phương Đông",
-    "Phương Nam",
-    "Phương Bắc",
-    "Phương Thảo",
-    "Phương Mai",
-    "Phương Anh",
-    "Phương Linh",
-    "Phương Hương",
-    "Phương Uyên",
-    "Phương Trang",
-    "Phương Việt",
-    "Phương Thành",
-    "Phương Minh",
-    "Phương Quang",
-    "Phương An",
-    "Phương Lộc",
-    "Phương Phúc",
-    "Phương Hưng",
-    "Phương Tâm",
-    "Phương Châu",
-
-    "Hoàng Minh",
-    "Hoàng Anh",
-    "Hoàng Phúc",
-    "Hoàng Nam",
-    "Hoàng Sơn",
-    "Hoàng Hải",
-    "Hoàng Vân",
-    "Hoàng Mai",
-    "Hoàng Hà",
-    "Hoàng Việt",
-    "Hoàng Tâm",
-    "Hoàng Lộc",
-    "Hoàng Phương",
-    "Hoàng Châu",
-    "Hoàng Quân",
-    "Hoàng Đức",
-    "Hoàng Long",
-    "Hoàng Thành",
-    "Hoàng Thịnh",
-    "Hoàng Gia",
-
-    "Hương Sen",
-    "Hương Mai",
-    "Hương Lan",
-    "Hương Quê",
-    "Hương Đồng",
-    "Hương Việt",
-    "Hương Giang",
-    "Hương Phố",
-    "Hương Xưa",
-    "Hương Mộc",
-    "Hương Ngọc",
-    "Hương An",
-    "Hương Bình",
-    "Hương Thành",
-    "Hương Phúc",
-    "Hương Lộc",
-    "Hương Sơn",
-    "Hương Thảo",
-    "Hương Quang",
-    "Hương Nam",
-
-    "Sông Hồng",
-    "Sông Tiền",
-    "Sông Hậu",
-    "Sông Xanh",
-    "Sông Quê",
-    "Sông Việt",
-    "Sông Trăng",
-    "Sông Vàng",
-    "Sông Ngọc",
-    "Sông Phố",
-    "Sông Sen",
-    "Sông Mai",
-    "Sông An",
-    "Sông Bình",
-    "Sông Minh",
-    "Sông Phúc",
-    "Sông Thành",
-    "Sông Lộc",
-    "Sông Hương",
-    "Sông Châu"
-];
-
-
-/* =========================================================
-   5. DỮ LIỆU XÃ + ẤP
+   4. DỮ LIỆU XÃ + ẤP
    Mỗi xã có danh sách ấp RIÊNG.
 ========================================================= */
 
@@ -650,7 +628,7 @@ const khuVuc = [
     {
         xa: "Xã Cái Nhum",
         ap: [
-            "Ấp Phú An",
+            "Ấp Phú An"
         ]
     },
 
@@ -702,7 +680,7 @@ const khuVuc = [
 
 
 /* =========================================================
-   6. HÀM RANDOM
+   5. HÀM RANDOM
 ========================================================= */
 
 function randomItem(array) {
@@ -711,23 +689,43 @@ function randomItem(array) {
 
 
 /* =========================================================
-   7. TẠO TÊN NGƯỜI
+   6. TẠO TÊN NGƯỜI
+
+   Random giới tính:
+   - 50% nam
+   - 50% nữ
+
+   Sau khi chọn giới tính sẽ lấy họ, đệm và tên
+   hoàn toàn từ danh sách của giới tính đó.
 ========================================================= */
 
 function randomName() {
 
-    const h = randomItem(ho);
-    const d = randomItem(tenDem);
-    const t = randomItem(ten);
+    const laNam = Math.random() < 0.5;
 
-    return `${h} ${d} ${t}`;
+    const ho = laNam ? hoNam : hoNu;
+    const tenDem = laNam ? tenDemNam : tenDemNu;
+    const ten = laNam ? tenNam : tenNu;
+
+    return `${randomItem(ho)} ${randomItem(tenDem)} ${randomItem(ten)}`;
 }
 
 
 /* =========================================================
-   8. TẠO SỐ NHÀ
+   7. TẠO SỐ NHÀ
+
    001 - 700
    Có thể kèm A/B/C/D/E/F
+
+   3 kiểu:
+   - Số nhà 123
+   - Số 123
+   - 123
+
+   Tỷ lệ:
+   - 33%
+   - 33%
+   - 34%
 ========================================================= */
 
 function randomSoNha() {
@@ -736,29 +734,66 @@ function randomSoNha() {
 
     const formatted = String(number).padStart(3, "0");
 
-    const letters = ["", "A", "B", "C", "D", "E", "F"];
+    const letters = [
+        "",
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+    ];
 
     const letter = randomItem(letters);
 
-    return formatted + letter;
+    const soNha = formatted + letter;
+
+    const random = Math.random();
+
+    if (random < 0.33) {
+        return `Số nhà ${soNha}`;
+    }
+
+    if (random < 0.66) {
+        return `Số ${soNha}`;
+    }
+
+    return soNha;
 }
 
 
 /* =========================================================
-   9. TẠO TÊN ĐỊA ĐIỂM
+   8. TẠO TÊN ĐỊA ĐIỂM
+
+   Không còn dùng danh sách tenDiaDiem.
+
+   Tên địa điểm được tạo bằng:
+   Loại địa điểm + Tên đệm + Tên
+
+   Giới tính nam/nữ random 50 - 50,
+   hoàn toàn độc lập với giới tính của tên người.
 ========================================================= */
 
 function randomDiaDiem() {
 
     const loai = randomItem(loaiDiaDiem);
-    const ten = randomItem(tenDiaDiem);
 
-    return `${loai} ${ten}`;
+    const laNam = Math.random() < 0.5;
+
+    const tenDem = laNam
+        ? tenDemNam
+        : tenDemNu;
+
+    const ten = laNam
+        ? tenNam
+        : tenNu;
+
+    return `${loai} ${randomItem(tenDem)} ${randomItem(ten)}`;
 }
 
 
 /* =========================================================
-   10. TẠO 1 TRONG 3 TIỀN TỐ
+   9. TẠO 1 TRONG 3 TIỀN TỐ
 ========================================================= */
 
 function randomTienTo() {
@@ -782,7 +817,7 @@ function randomTienTo() {
 
 
 /* =========================================================
-   11. SHUFFLE
+   10. SHUFFLE
 ========================================================= */
 
 function shuffle(array) {
@@ -791,9 +826,12 @@ function shuffle(array) {
 
     for (let i = arr.length - 1; i > 0; i--) {
 
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(
+            Math.random() * (i + 1)
+        );
 
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+        [arr[i], arr[j]] =
+            [arr[j], arr[i]];
     }
 
     return arr;
@@ -801,7 +839,7 @@ function shuffle(array) {
 
 
 /* =========================================================
-   12. TẠO ĐỊA CHỈ
+   11. TẠO ĐỊA CHỈ
 ========================================================= */
 
 function randomAddress() {
@@ -811,99 +849,139 @@ function randomAddress() {
         Sau đó chỉ lấy ấp trong đúng xã đó.
     */
 
-    const selectedArea = randomItem(khuVuc);
+    const selectedArea =
+        randomItem(khuVuc);
 
-    const xa = selectedArea.xa;
+    const xa =
+        selectedArea.xa;
 
-    const ap = randomItem(selectedArea.ap);
+    const ap =
+        randomItem(selectedArea.ap);
 
 
     /*
         Có 4 loại thành phần:
+
         - số nhà
         - đường
         - địa điểm
         - ấp
 
-        Chúng ta cần đúng 3 thành phần.
+        Cần đúng 3 thành phần.
 
         Ấp luôn bắt buộc.
-        Hai thành phần còn lại lấy từ 3 loại còn lại.
+
+        Hai thành phần còn lại lấy ngẫu nhiên
+        từ số nhà / đường / địa điểm.
     */
 
-    const otherTypes = shuffle([
-        "soNha",
-        "duong",
-        "diaDiem"
-    ]).slice(0, 2);
+    const otherTypes =
+        shuffle([
+            "soNha",
+            "duong",
+            "diaDiem"
+        ]).slice(0, 2);
 
 
     let parts = [];
 
-    // Thêm Ấp
+
+    /*
+        Thêm ấp.
+    */
+
     parts.push(ap);
 
 
-    // Thêm 2 thành phần khác
+    /*
+        Thêm 2 thành phần khác.
+    */
+
     otherTypes.forEach(type => {
 
         if (type === "soNha") {
-            parts.push(randomSoNha());
+            parts.push(
+                randomSoNha()
+            );
         }
 
         else if (type === "duong") {
-            parts.push(randomItem(duong));
+            parts.push(
+                randomItem(duong)
+            );
         }
 
         else if (type === "diaDiem") {
-            parts.push(randomDiaDiem());
+            parts.push(
+                randomDiaDiem()
+            );
         }
 
     });
 
 
     /*
-        Xáo trộn hoàn toàn thứ tự.
+        Xáo trộn hoàn toàn thứ tự
+        của 3 thành phần.
     */
 
     parts = shuffle(parts);
 
 
     /*
-        Cuối cùng mới thêm xã + tỉnh.
+        Cuối cùng thêm xã + tỉnh.
     */
 
-    return parts.join(", ") + ", " + xa + ", tỉnh Vĩnh Long";
+    return (
+        parts.join(", ") +
+        ", " +
+        xa +
+        ", tỉnh Vĩnh Long"
+    );
 }
 
 
 /* =========================================================
-   13. TẠO TẤT CẢ
+   12. TẠO TẤT CẢ
 ========================================================= */
 
 function generateAll() {
 
-    const name = randomName();
+    const name =
+        randomName();
 
-    const address = randomAddress();
+    const address =
+        randomAddress();
 
-    document.getElementById("nameOutput").textContent = name;
+    document
+        .getElementById("nameOutput")
+        .textContent = name;
 
-    document.getElementById("addressOutput").textContent = address;
+    document
+        .getElementById("addressOutput")
+        .textContent = address;
 
-    document.getElementById("status").textContent = "";
+    document
+        .getElementById("status")
+        .textContent = "";
 }
 
 
 /* =========================================================
-   14. SAO CHÉP
+   13. SAO CHÉP
 ========================================================= */
 
 async function copyAll() {
 
-    const name = document.getElementById("nameOutput").textContent;
+    const name =
+        document
+            .getElementById("nameOutput")
+            .textContent;
 
-    const address = document.getElementById("addressOutput").textContent;
+    const address =
+        document
+            .getElementById("addressOutput")
+            .textContent;
 
     const text =
         `Tên: ${name}\n` +
@@ -912,14 +990,20 @@ async function copyAll() {
 
     try {
 
-        await navigator.clipboard.writeText(text);
+        await navigator
+            .clipboard
+            .writeText(text);
 
-        document.getElementById("status").textContent =
+        document
+            .getElementById("status")
+            .textContent =
             "Đã sao chép tên và địa chỉ!";
 
         setTimeout(() => {
 
-            document.getElementById("status").textContent = "";
+            document
+                .getElementById("status")
+                .textContent = "";
 
         }, 2000);
 
@@ -927,7 +1011,9 @@ async function copyAll() {
 
     catch (error) {
 
-        document.getElementById("status").textContent =
+        document
+            .getElementById("status")
+            .textContent =
             "Không thể sao chép tự động.";
 
     }
@@ -935,7 +1021,7 @@ async function copyAll() {
 
 
 /* =========================================================
-   15. CHẠY NGAY KHI MỞ TRANG
+   14. CHẠY NGAY KHI MỞ TRANG
 ========================================================= */
 
 generateAll();
