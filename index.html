@@ -16,7 +16,7 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 20px;
             color: #1e293b;
         }
@@ -24,6 +24,8 @@
         .container {
             width: 100%;
             max-width: 760px;
+            margin-top: 20px;
+            margin-bottom: 40px;
         }
 
         .card {
@@ -114,10 +116,16 @@
             font-size: 16px;
         }
 
+        /* --- BUTTONS --- */
         .button-row {
             display: flex;
-            gap: 10px;
             margin-top: 24px;
+        }
+
+        .copy-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
         }
 
         button {
@@ -135,23 +143,23 @@
         }
 
         .random-btn {
-            flex: 1;
+            width: 100%;
             background: #4f46e5;
             color: white;
+            font-size: 16px;
         }
 
-        .random-btn:hover {
-            background: #4338ca;
-        }
+        .random-btn:hover { background: #4338ca; }
 
         .copy-btn {
+            flex: 1;
             background: #e2e8f0;
             color: #334155;
+            font-size: 14px;
+            padding: 10px;
         }
 
-        .copy-btn:hover {
-            background: #cbd5e1;
-        }
+        .copy-btn:hover { background: #cbd5e1; }
 
         .status {
             text-align: center;
@@ -159,14 +167,104 @@
             min-height: 20px;
             font-size: 13px;
             color: #16a34a;
+            font-weight: bold;
         }
 
+        /* --- USAGE LOG SECTION --- */
+        .usage-section {
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 2px dashed #cbd5e1;
+        }
+
+        .usage-section h2 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            color: #1e293b;
+        }
+
+        .usage-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .usage-item {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 15px;
+        }
+
+        .usage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .usage-xa-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #0f172a;
+        }
+
+        .usage-time {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .usage-time span {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .usage-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .btn-use { background: #3b82f6; color: white; }
+        .btn-use:hover { background: #2563eb; }
+        
+        .btn-undo { background: #f59e0b; color: white; }
+        .btn-undo:hover { background: #d97706; }
+
+        .note-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .note-row input {
+            flex: 1;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+            outline: none;
+        }
+        
+        .note-row input:focus {
+            border-color: #3b82f6;
+        }
+
+        .btn-save-note { background: #10b981; color: white; }
+        .btn-save-note:hover { background: #059669; }
+
         @media (max-width: 600px) {
-            .card { padding: 22px; }
+            .card { padding: 20px; }
             h1 { font-size: 24px; }
-            .button-row { flex-direction: column; }
-            .copy-btn { width: 100%; }
+            .copy-row { flex-direction: column; }
             .xa-list { grid-template-columns: 1fr; }
+            .usage-header { flex-direction: column; align-items: flex-start; gap: 4px; }
         }
     </style>
 </head>
@@ -205,10 +303,23 @@
 
         <div class="button-row">
             <button class="random-btn" onclick="generateAll()">Tạo ngẫu nhiên</button>
-            <button class="copy-btn" onclick="copyAll()">Sao chép</button>
+        </div>
+        <div class="copy-row">
+            <button class="copy-btn" onclick="copyName()">Copy Tên</button>
+            <button class="copy-btn" onclick="copyAddress()">Copy Địa chỉ</button>
+            <button class="copy-btn" onclick="copyAll()">Copy Tất cả</button>
         </div>
 
         <div class="status" id="status"></div>
+
+        <!-- KHU VỰC SỬ DỤNG GẦN ĐÂY -->
+        <div class="usage-section">
+            <h2>Sử dụng gần đây:</h2>
+            <div id="usageListContainer" class="usage-list">
+                <!-- Nội dung render bằng JS -->
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -221,13 +332,11 @@ const hoNam = [
     "Hồ", "Ngô", "Dương", "Lý", "Mai", "Trương", "Đinh", "Vũ", "Tạ", "Cao", 
     "Châu", "Tô", "La", "Đoàn", "Lương", "Tôn", "Từ", "Mạc", "Tiêu", "Trịnh"
 ];
-
 const tenDemNam = [
     "Văn", "Hữu", "Minh", "Quốc", "Đức", "Thanh", "Hoàng", "Gia", "Anh", "Nhật", 
     "Tuấn", "Xuân", "Thành", "Công", "Phúc", "Đình", "Trung", "Quang", "Khắc", "Bá", 
     "Sỹ", "Trường", "Thế", "Bảo", "Trí", "Việt", "Đăng", "Khôi", "Tài", "Đạt"
 ];
-
 const tenNam = [
     "An", "Anh", "Bảo", "Bình", "Bửu", "Duy", "Đạt", "Đức", "Điền", "Đăng", 
     "Hải", "Hiếu", "Hoàng", "Hùng", "Hào", "Khang", "Khôi", "Khiêm", "Khương", "Khánh", 
@@ -238,19 +347,16 @@ const tenNam = [
     "Tín", "Vượng", "Xuân", "Dương", "Khải", "Thạch", "Triết", "Bách", "Đại", "Kỳ", 
     "Toại", "Huy", "Hưng", "Luân", "Bằng", "Kính", "Tường", "Ân", "Thái", "Nguyên"
 ];
-
 const hoNu = [
     "Nguyễn", "Trần", "Lê", "Phạm", "Huỳnh", "Phan", "Võ", "Đặng", "Bùi", "Đỗ", 
     "Hồ", "Ngô", "Dương", "Lý", "Mai", "Trương", "Đinh", "Vũ", "Tạ", "Cao", 
     "Châu", "Tô", "La", "Đoàn", "Lương", "Tôn", "Từ", "Mạc", "Tiêu", "Trịnh"
 ];
-
 const tenDemNu = [
     "Thị", "Ngọc", "Thu", "Kim", "Thanh", "Minh", "Bảo", "Hồng", "Diệu", "Mỹ", 
     "Phương", "Quỳnh", "Khánh", "Gia", "Hoài", "Anh", "Tú", "Tường", "Kiều", "Nhật", 
     "Thùy", "Ánh", "Xuân", "Hải", "Tuệ", "Bích", "Uyên", "Nhã", "Đan", "Cẩm"
 ];
-
 const tenNu = [
     "An", "Anh", "Ân", "Bích", "Chi", "Châu", "Diễm", "Dung", "Giang", "Hà", 
     "Hân", "Hiền", "Hoa", "Hồng", "Hương", "Khánh", "Lan", "Linh", "Loan", "Ly", 
@@ -275,7 +381,6 @@ const duong = [
     "Đường Điện Biên Phủ", "Đường 30 Tháng 4", "Đường 2 Tháng 9", "Đường 19 Tháng 5", 
     "Đường Hùng Vương", "Đường Bạch Đằng"
 ];
-
 const loaiDiaDiem = [
     "Quán cơm", "Nhà nghỉ", "Quán bánh canh", "Quán phở", "Quán hủ tiếu", "Quán bún bò", 
     "Quán cháo", "Quán lẩu", "Quán nướng", "Quán ốc", "Quán hải sản", "Quán ăn vặt", 
@@ -309,7 +414,6 @@ const khuVucMoi = [
     { xa: "Xã Hiếu Phụng", ap: ["Ấp Nhơn Ngãi", "Ấp Nhơn Nghĩa", "Ấp Tân Quang", "Ấp Quang Thạnh", "Ấp Hiếu Hiệp", "Ấp Tân Khánh", "Ấp Quang Phú", "Ấp Quang Mỹ", "Ấp Ngãi Thạnh", "Ấp Quang Trường", "Ấp Phú Điền", "Ấp Phú Cường"] },
     { xa: "Xã Trung Thành", ap: ["Ấp An Nhơn", "Ấp Trung Trạch", "Ấp Xuân Minh 1", "Ấp Xuân Minh 2", "Ấp Trung Xuân", "Ấp Phước Lộc", "Ấp Xuân Lộc"] }
 ];
-
 const khuVucCu = [
     { xa: "Xã Hiếu Phụng", ap: ["Ấp An Hậu", "Ấp An Lạc 1", "Ấp An Lạc 2", "Ấp An Phước", "Ấp Hiếu Hiệp", "Ấp Nhơn Ngãi", "Ấp Nhơn Nghĩa", "Ấp Quang Huy", "Ấp Quang Phú", "Ấp Quang Thạnh", "Ấp Tân Huy", "Ấp Tân Khánh", "Ấp Tân Quang", "Ấp Trung Hòa 1", "Ấp Trung Hòa 2"] },
     { xa: "Xã Hiếu Thuận", ap: ["Ấp Ngãi Thạnh", "Ấp Phú Cường", "Ấp Phú Điền", "Ấp Quang Mỹ", "Ấp Quang Trường"] },
@@ -322,7 +426,7 @@ const khuVucCu = [
 ];
 
 /* =========================================================
-   4. LOGIC TỰ ĐỘNG LƯU TRỮ (LocalStorage)
+   4. LOGIC TỰ ĐỘNG LƯU TRỮ (LocalStorage) CÀI ĐẶT
 ========================================================= */
 const addressTypeRadios = document.querySelectorAll('input[name="addressType"]');
 const checkAll = document.getElementById('checkAll');
@@ -345,15 +449,12 @@ function renderXaList() {
 
         const label = document.createElement('label');
         label.innerHTML = `<input type="checkbox" value="${item.xa}" class="xa-checkbox" ${isChecked ? 'checked' : ''}> ${item.xa}`;
-        
-        label.querySelector('input').addEventListener('change', () => {
-            updateSavedXa();
-        });
-        
+        label.querySelector('input').addEventListener('change', updateSavedXa);
         xaListDiv.appendChild(label);
     });
 
     checkAll.checked = allChecked;
+    renderUsageList(); // Render log khu vực bên dưới luôn
 }
 
 checkAll.addEventListener('change', (e) => {
@@ -373,7 +474,6 @@ function updateSavedXa() {
         savedXaCu = selected;
         localStorage.setItem('savedXaCu', JSON.stringify(savedXaCu));
     }
-
     checkAll.checked = selected.length > 0 && selected.length === boxes.length;
 }
 
@@ -385,17 +485,106 @@ addressTypeRadios.forEach(radio => {
     });
 });
 
-// Khởi tạo trạng thái ban đầu
+/* =========================================================
+   5. LOGIC QUẢN LÝ "SỬ DỤNG GẦN ĐÂY"
+========================================================= */
+let usageData = JSON.parse(localStorage.getItem('usageData')) || {};
+
+function getUsageKey(xa) {
+    return `${currentType}_${xa}`;
+}
+
+function getUsage(xa) {
+    const key = getUsageKey(xa);
+    return usageData[key] || { lastUsed: null, prevUsed: null, note: "" };
+}
+
+function setUsage(xa, data) {
+    const key = getUsageKey(xa);
+    usageData[key] = data;
+    localStorage.setItem('usageData', JSON.stringify(usageData));
+}
+
+function markUsed(xa) {
+    let data = getUsage(xa);
+    data.prevUsed = data.lastUsed;
+    
+    // Lấy giờ hiện tại format DD/MM/YYYY HH:MM:SS
+    const now = new Date();
+    data.lastUsed = now.toLocaleString('vi-VN');
+    
+    setUsage(xa, data);
+    renderUsageList();
+}
+
+function undoUsed(xa) {
+    let data = getUsage(xa);
+    if (data.prevUsed !== null) {
+        data.lastUsed = data.prevUsed;
+        data.prevUsed = null; // Chỉ cho hoàn tác 1 lần
+        setUsage(xa, data);
+        renderUsageList();
+    } else {
+        alert("Không có thao tác nào gần đây để hoàn tác cho xã này!");
+    }
+}
+
+function saveNoteLocal(xa, inputId, btnId) {
+    let data = getUsage(xa);
+    data.note = document.getElementById(inputId).value;
+    setUsage(xa, data);
+    
+    // Feedback
+    const btn = document.getElementById(btnId);
+    btn.textContent = "Đã lưu ✓";
+    btn.style.background = "#059669"; // Màu đậm hơn chút
+    setTimeout(() => {
+        btn.textContent = "Lưu";
+        btn.style.background = ""; // Trả về css gốc
+    }, 2000);
+}
+
+function renderUsageList() {
+    const container = document.getElementById('usageListContainer');
+    container.innerHTML = '';
+    
+    const data = currentType === 'moi' ? khuVucMoi : khuVucCu;
+    
+    data.forEach((item, index) => {
+        const xa = item.xa;
+        const uData = getUsage(xa);
+        const timeDisplay = uData.lastUsed ? `<span>${uData.lastUsed}</span>` : "Chưa dùng";
+        const noteId = `note_input_${index}`;
+        const btnId = `btn_note_${index}`;
+
+        const div = document.createElement('div');
+        div.className = 'usage-item';
+        div.innerHTML = `
+            <div class="usage-header">
+                <div class="usage-xa-name">${xa}</div>
+                <div class="usage-time">Lần cuối: ${timeDisplay}</div>
+            </div>
+            <div class="usage-actions">
+                <button class="btn-sm btn-use" onclick="markUsed('${xa}')">Dùng</button>
+                <button class="btn-sm btn-undo" onclick="undoUsed('${xa}')">Hoàn tác</button>
+            </div>
+            <div class="note-row">
+                <input type="text" id="${noteId}" placeholder="Ghi chú công việc..." value="${uData.note}">
+                <button id="${btnId}" class="btn-sm btn-save-note" onclick="saveNoteLocal('${xa}', '${noteId}', '${btnId}')">Lưu</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// Khởi tạo ban đầu
 document.querySelector(`input[value="${currentType}"]`).checked = true;
 renderXaList();
 
 /* =========================================================
-   5. CÁC HÀM RANDOM
+   6. CÁC HÀM RANDOM
 ========================================================= */
-function randomItem(array) {
-    return array[Math.floor(Math.random() * array.length)];
-}
-
+function randomItem(array) { return array[Math.floor(Math.random() * array.length)]; }
 function shuffle(array) {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -404,7 +593,6 @@ function shuffle(array) {
     }
     return arr;
 }
-
 function randomName() {
     const laNam = Math.random() < 0.5;
     const ho = laNam ? hoNam : hoNu;
@@ -412,23 +600,15 @@ function randomName() {
     const ten = laNam ? tenNam : tenNu;
     return `${randomItem(ho)} ${randomItem(tenDem)} ${randomItem(ten)}`;
 }
-
-// Random Số nhà từ 001 đến 800, tỉ lệ 50% có chữ cái (A-H)
 function randomSoNha() {
     const number = Math.floor(Math.random() * 800) + 1;
     let soNha = String(number).padStart(3, "0");
-
-    if (Math.random() < 0.5) {
-        const letters = ["A", "B", "C", "D", "E", "F", "G", "H"];
-        soNha += randomItem(letters);
-    }
-
+    if (Math.random() < 0.5) soNha += randomItem(["A", "B", "C", "D", "E", "F", "G", "H"]);
     const random = Math.random();
     if (random < 0.33) return `Số nhà ${soNha}`;
     if (random < 0.66) return `Số ${soNha}`;
     return soNha;
 }
-
 function randomDiaDiem() {
     const loai = randomItem(loaiDiaDiem);
     const laNam = Math.random() < 0.5;
@@ -441,7 +621,6 @@ function randomAddress() {
     const data = currentType === 'moi' ? khuVucMoi : khuVucCu;
     const activeXaList = currentType === 'moi' ? savedXaMoi : savedXaCu;
 
-    // Nếu không tick ô nào -> báo lỗi
     if (activeXaList.length === 0) {
         alert("Tạo thất bại: Bạn chưa chọn xã nào trong phần Cài đặt dữ liệu hành chính!");
         return "Lỗi: Chưa chọn xã";
@@ -454,16 +633,13 @@ function randomAddress() {
 
     const otherTypes = shuffle(["soNha", "duong", "diaDiem"]).slice(0, 2);
     let parts = [ap];
-
     otherTypes.forEach(type => {
         if (type === "soNha") parts.push(randomSoNha());
         else if (type === "duong") parts.push(randomItem(duong));
         else if (type === "diaDiem") parts.push(randomDiaDiem());
     });
-
     parts = shuffle(parts);
 
-    // Cấu trúc địa chỉ theo loại
     if (currentType === 'cu') {
         const huyen = (xa === "Xã Cái Nhum") ? "huyện Mang Thít" : "huyện Vũng Liêm";
         return parts.join(", ") + ", " + xa + ", " + huyen + ", tỉnh Vĩnh Long";
@@ -473,7 +649,7 @@ function randomAddress() {
 }
 
 /* =========================================================
-   6. HÀM GIAO TIẾP VỚI GIAO DIỆN
+   7. HÀM GIAO TIẾP VỚI GIAO DIỆN (GENERATE & COPY)
 ========================================================= */
 function generateAll() {
     const name = randomName();
@@ -490,21 +666,38 @@ function generateAll() {
     document.getElementById("status").textContent = "";
 }
 
-async function copyAll() {
-    const name = document.getElementById("nameOutput").textContent;
-    const address = document.getElementById("addressOutput").textContent;
+function showCopyStatus(msg) {
+    const status = document.getElementById("status");
+    status.textContent = msg;
+    setTimeout(() => { status.textContent = ""; }, 2000);
+}
 
-    if(address === "Lỗi: Chưa chọn xã" || address === "---") return;
-
-    const text = `Tên: ${name}\nĐịa chỉ: ${address}`;
-
+async function copyText(text, successMsg) {
+    if (!text || text === "---" || text === "Lỗi: Chưa chọn xã") return;
     try {
         await navigator.clipboard.writeText(text);
-        document.getElementById("status").textContent = "Đã sao chép tên và địa chỉ!";
-        setTimeout(() => { document.getElementById("status").textContent = ""; }, 2000);
+        showCopyStatus(successMsg);
     } catch (error) {
-        document.getElementById("status").textContent = "Không thể sao chép tự động.";
+        showCopyStatus("Không thể sao chép tự động.");
     }
+}
+
+function copyName() {
+    const name = document.getElementById("nameOutput").textContent;
+    copyText(name, "Đã sao chép Tên!");
+}
+
+function copyAddress() {
+    const address = document.getElementById("addressOutput").textContent;
+    copyText(address, "Đã sao chép Địa chỉ!");
+}
+
+function copyAll() {
+    const name = document.getElementById("nameOutput").textContent;
+    const address = document.getElementById("addressOutput").textContent;
+    if(address === "Lỗi: Chưa chọn xã" || address === "---") return;
+    const text = `Tên: ${name}\nĐịa chỉ: ${address}`;
+    copyText(text, "Đã sao chép Tên và Địa chỉ!");
 }
 
 // Chạy lần đầu tiên
