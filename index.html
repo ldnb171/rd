@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Random Tên & Địa Chỉ</title>
-
     <style>
         * {
             box-sizing: border-box;
@@ -48,6 +46,48 @@
             font-size: 14px;
         }
 
+        /* --- SETTINGS AREA --- */
+        .settings-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .checkbox-container {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .check-all {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .xa-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .xa-list label {
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        /* --- RESULTS AREA --- */
         .result-box {
             margin-bottom: 18px;
         }
@@ -113,16 +153,6 @@
             background: #cbd5e1;
         }
 
-        .info {
-            margin-top: 24px;
-            padding: 14px 16px;
-            border-radius: 12px;
-            background: #f1f5f9;
-            color: #64748b;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
         .status {
             text-align: center;
             margin-top: 12px;
@@ -132,21 +162,11 @@
         }
 
         @media (max-width: 600px) {
-            .card {
-                padding: 22px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            .button-row {
-                flex-direction: column;
-            }
-
-            .copy-btn {
-                width: 100%;
-            }
+            .card { padding: 22px; }
+            h1 { font-size: 24px; }
+            .button-row { flex-direction: column; }
+            .copy-btn { width: 100%; }
+            .xa-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -155,878 +175,341 @@
 
 <div class="container">
     <div class="card">
-
         <h1>Random Tên & Địa Chỉ</h1>
+        <div class="subtitle">Tạo ngẫu nhiên tên và địa chỉ giả lập tại tỉnh Vĩnh Long</div>
 
-        <div class="subtitle">
-            Tạo ngẫu nhiên tên và địa chỉ giả lập tại tỉnh Vĩnh Long
+        <!-- CÀI ĐẶT HÀNH CHÍNH -->
+        <div class="settings-box">
+            <span class="label">Chọn dữ liệu hành chính:</span>
+            <div class="radio-group">
+                <label><input type="radio" name="addressType" value="moi"> Địa chỉ mới</label>
+                <label><input type="radio" name="addressType" value="cu"> Địa chỉ cũ</label>
+            </div>
+            <div class="checkbox-container">
+                <label class="check-all"><input type="checkbox" id="checkAll"> Tất cả</label>
+                <div id="xaList" class="xa-list"></div>
+            </div>
         </div>
 
         <!-- TÊN -->
         <div class="result-box">
             <span class="label">Tên ngẫu nhiên</span>
-
-            <div class="output" id="nameOutput">
-                Đang tạo...
-            </div>
+            <div class="output" id="nameOutput">Đang tạo...</div>
         </div>
 
         <!-- ĐỊA CHỈ -->
         <div class="result-box">
             <span class="label">Địa chỉ ngẫu nhiên</span>
-
-            <div class="output address" id="addressOutput">
-                Đang tạo...
-            </div>
+            <div class="output address" id="addressOutput">Đang tạo...</div>
         </div>
 
         <div class="button-row">
-
-            <button class="random-btn" onclick="generateAll()">
-                Tạo ngẫu nhiên
-            </button>
-
-            <button class="copy-btn" onclick="copyAll()">
-                Sao chép
-            </button>
-
+            <button class="random-btn" onclick="generateAll()">Tạo ngẫu nhiên</button>
+            <button class="copy-btn" onclick="copyAll()">Sao chép</button>
         </div>
 
         <div class="status" id="status"></div>
-
-        <div class="info">
-            Mỗi lần tạo sẽ random tên, xã, ấp và 3 thành phần địa chỉ.
-            Trong 3 thành phần luôn có đúng 1 thành phần là ấp tương ứng
-            với xã được chọn.
-        </div>
-
     </div>
 </div>
 
-
 <script>
-
 /* =========================================================
    1. DỮ LIỆU TÊN NAM / NỮ
-
-   Nam: 23 họ, 23 tên đệm, 65 tên.
-   Nữ:  23 họ, 23 tên đệm, 65 tên.
 ========================================================= */
-
-
-/* =====================
-   HỌ NAM
-===================== */
-
 const hoNam = [
-    "Nguyễn",
-    "Trần",
-    "Lê",
-    "Phạm",
-    "Huỳnh",
-    "Phan",
-    "Võ",
-    "Đặng",
-    "Bùi",
-    "Đỗ",
-    "Hồ",
-    "Ngô",
-    "Dương",
-    "Lý",
-    "Mai",
-    "Trương",
-    "Đinh",
-    "Vũ",
-    "Tạ",
-    "Cao",
-    "Châu",
-    "Tô",
-    "La"
+    "Nguyễn", "Trần", "Lê", "Phạm", "Huỳnh", "Phan", "Võ", "Đặng", "Bùi", "Đỗ", 
+    "Hồ", "Ngô", "Dương", "Lý", "Mai", "Trương", "Đinh", "Vũ", "Tạ", "Cao", 
+    "Châu", "Tô", "La", "Đoàn", "Lương", "Tôn", "Từ", "Mạc", "Tiêu", "Trịnh"
 ];
-
-
-/* =====================
-   TÊN ĐỆM NAM
-===================== */
 
 const tenDemNam = [
-    "Văn",
-    "Hữu",
-    "Minh",
-    "Quốc",
-    "Đức",
-    "Thanh",
-    "Hoàng",
-    "Gia",
-    "Anh",
-    "Nhật",
-    "Tuấn",
-    "Xuân",
-    "Thành",
-    "Công",
-    "Phúc",
-    "Đình",
-    "Trung",
-    "Quang",
-    "Khắc",
-    "Bá",
-    "Sỹ",
-    "Trường",
-    "Thế"
+    "Văn", "Hữu", "Minh", "Quốc", "Đức", "Thanh", "Hoàng", "Gia", "Anh", "Nhật", 
+    "Tuấn", "Xuân", "Thành", "Công", "Phúc", "Đình", "Trung", "Quang", "Khắc", "Bá", 
+    "Sỹ", "Trường", "Thế", "Bảo", "Trí", "Việt", "Đăng", "Khôi", "Tài", "Đạt"
 ];
-
-
-/* =====================
-   TÊN NAM
-===================== */
 
 const tenNam = [
-    "An",
-    "Anh",
-    "Bảo",
-    "Bình",
-    "Bửu",
-    "Duy",
-    "Đạt",
-    "Đức",
-    "Điền",
-    "Đăng",
-    "Hải",
-    "Hiếu",
-    "Hoàng",
-    "Hùng",
-    "Hào",
-    "Khang",
-    "Khôi",
-    "Khiêm",
-    "Khương",
-    "Khánh",
-    "Khanh",
-    "Long",
-    "Lâm",
-    "Minh",
-    "Nam",
-    "Nghĩa",
-    "Nhân",
-    "Phát",
-    "Phong",
-    "Phúc",
-    "Phú",
-    "Quân",
-    "Sang",
-    "Thành",
-    "Thiện",
-    "Trí",
-    "Tuấn",
-    "Tùng",
-    "Tài",
-    "Trọng",
-    "Vinh",
-    "Việt",
-    "Vũ",
-    "Cường",
-    "Chí",
-    "Dũng",
-    "Giang",
-    "Hậu",
-    "Kiên",
-    "Lộc",
-    "Mạnh",
-    "Nghiêm",
-    "Nhật",
-    "Quang",
-    "Sơn",
-    "Thắng",
-    "Thịnh",
-    "Tiến",
-    "Toàn",
-    "Trung",
-    "Tín",
-    "Vượng",
-    "Xuân",
-    "Dương",
-    "Khải"
+    "An", "Anh", "Bảo", "Bình", "Bửu", "Duy", "Đạt", "Đức", "Điền", "Đăng", 
+    "Hải", "Hiếu", "Hoàng", "Hùng", "Hào", "Khang", "Khôi", "Khiêm", "Khương", "Khánh", 
+    "Khanh", "Long", "Lâm", "Minh", "Nam", "Nghĩa", "Nhân", "Phát", "Phong", "Phúc", 
+    "Phú", "Quân", "Sang", "Thành", "Thiện", "Trí", "Tuấn", "Tùng", "Tài", "Trọng", 
+    "Vinh", "Việt", "Vũ", "Cường", "Chí", "Dũng", "Giang", "Hậu", "Kiên", "Lộc", 
+    "Mạnh", "Nghiêm", "Nhật", "Quang", "Sơn", "Thắng", "Thịnh", "Tiến", "Toàn", "Trung", 
+    "Tín", "Vượng", "Xuân", "Dương", "Khải", "Thạch", "Triết", "Bách", "Đại", "Kỳ", 
+    "Toại", "Huy", "Hưng", "Luân", "Bằng", "Kính", "Tường", "Ân", "Thái", "Nguyên"
 ];
-
-
-/* =====================
-   HỌ NỮ
-===================== */
 
 const hoNu = [
-    "Nguyễn",
-    "Trần",
-    "Lê",
-    "Phạm",
-    "Huỳnh",
-    "Phan",
-    "Võ",
-    "Đặng",
-    "Bùi",
-    "Đỗ",
-    "Hồ",
-    "Ngô",
-    "Dương",
-    "Lý",
-    "Mai",
-    "Trương",
-    "Đinh",
-    "Vũ",
-    "Tạ",
-    "Cao",
-    "Châu",
-    "Tô",
-    "La"
+    "Nguyễn", "Trần", "Lê", "Phạm", "Huỳnh", "Phan", "Võ", "Đặng", "Bùi", "Đỗ", 
+    "Hồ", "Ngô", "Dương", "Lý", "Mai", "Trương", "Đinh", "Vũ", "Tạ", "Cao", 
+    "Châu", "Tô", "La", "Đoàn", "Lương", "Tôn", "Từ", "Mạc", "Tiêu", "Trịnh"
 ];
-
-
-/* =====================
-   TÊN ĐỆM NỮ
-===================== */
 
 const tenDemNu = [
-    "Thị",
-    "Ngọc",
-    "Thu",
-    "Kim",
-    "Thanh",
-    "Minh",
-    "Bảo",
-    "Hồng",
-    "Diệu",
-    "Mỹ",
-    "Phương",
-    "Quỳnh",
-    "Khánh",
-    "Gia",
-    "Hoài",
-    "Anh",
-    "Tú",
-    "Tường",
-    "Kiều",
-    "Nhật",
-    "Thùy",
-    "Ánh",
-    "Xuân"
+    "Thị", "Ngọc", "Thu", "Kim", "Thanh", "Minh", "Bảo", "Hồng", "Diệu", "Mỹ", 
+    "Phương", "Quỳnh", "Khánh", "Gia", "Hoài", "Anh", "Tú", "Tường", "Kiều", "Nhật", 
+    "Thùy", "Ánh", "Xuân", "Hải", "Tuệ", "Bích", "Uyên", "Nhã", "Đan", "Cẩm"
 ];
-
-
-/* =====================
-   TÊN NỮ
-===================== */
 
 const tenNu = [
-    "An",
-    "Anh",
-    "Ân",
-    "Bích",
-    "Chi",
-    "Châu",
-    "Diễm",
-    "Dung",
-    "Giang",
-    "Hà",
-    "Hân",
-    "Hiền",
-    "Hoa",
-    "Hồng",
-    "Hương",
-    "Khánh",
-    "Lan",
-    "Linh",
-    "Loan",
-    "Ly",
-    "Mai",
-    "My",
-    "Nghi",
-    "Ngân",
-    "Ngọc",
-    "Như",
-    "Oanh",
-    "Phương",
-    "Quỳnh",
-    "Thảo",
-    "Thư",
-    "Thúy",
-    "Trang",
-    "Trâm",
-    "Trinh",
-    "Tú",
-    "Uyên",
-    "Vân",
-    "Vy",
-    "Xuân",
-    "Yến",
-    "Yến Nhi",
-    "Ái",
-    "Băng",
-    "Cẩm",
-    "Đan",
-    "Đào",
-    "Hạnh",
-    "Hân Nhi",
-    "Huyền",
-    "Khanh",
-    "Kiều",
-    "Lam",
-    "Lệ",
-    "Mộng",
-    "Nhã",
-    "Nhi",
-    "Quyên",
-    "Tâm",
-    "Tiên",
-    "Tuyết",
-    "Vi",
-    "Yên",
-    "Đông",
-    "Ánh"
+    "An", "Anh", "Ân", "Bích", "Chi", "Châu", "Diễm", "Dung", "Giang", "Hà", 
+    "Hân", "Hiền", "Hoa", "Hồng", "Hương", "Khánh", "Lan", "Linh", "Loan", "Ly", 
+    "Mai", "My", "Nghi", "Ngân", "Ngọc", "Như", "Oanh", "Phương", "Quỳnh", "Thảo", 
+    "Thư", "Thúy", "Trang", "Trâm", "Trinh", "Tú", "Uyên", "Vân", "Vy", "Xuân", 
+    "Yến", "Yến Nhi", "Ái", "Băng", "Cẩm", "Đan", "Đào", "Hạnh", "Hân Nhi", "Huyền", 
+    "Khanh", "Kiều", "Lam", "Lệ", "Mộng", "Nhã", "Nhi", "Quyên", "Tâm", "Tiên", 
+    "Tuyết", "Vi", "Yên", "Đông", "Ánh", "Giao", "Sương", "Khuê", "Thương", "Doanh", 
+    "Thắm", "Trà", "Cúc", "Huệ", "Nga", "Trân", "Uyển", "Thục", "Đài"
 ];
 
-
 /* =========================================================
-   2. DỮ LIỆU ĐỊA CHỈ
+   2. DỮ LIỆU ĐỊA CHỈ & LOẠI ĐỊA ĐIỂM
 ========================================================= */
-
 const duong = [
-    "Đường Lê Lợi",
-    "Đường Trần Hưng Đạo",
-    "Đường Quang Trung",
-    "Đường Nguyễn Trãi",
-    "Đường Võ Nguyên Giáp",
-    "Đường Nguyễn Thái Học",
-    "Đường Ngô Quyền",
-    "Đường Lý Thường Kiệt",
-    "Đường Đinh Tiên Hoàng",
-    "Đường Lê Thánh Tông",
-    "Đường Trần Phú",
-    "Đường Phan Châu Trinh",
-    "Đường Phan Bội Châu",
-    "Đường Hai Bà Trưng",
-    "Đường Trần Quốc Toản",
-    "Đường Phạm Ngũ Lão",
-    "Đường Nguyễn Huệ",
-    "Đường Võ Thị Sáu",
-    "Đường Lý Tự Trọng",
-    "Đường Nguyễn Văn Cừ",
-    "Đường Cách Mạng Tháng Tám",
-    "Đường Độc Lập",
-    "Đường Giải Phóng",
-    "Đường Thống Nhất",
-    "Đường Điện Biên Phủ",
-    "Đường 30 Tháng 4",
-    "Đường 2 Tháng 9",
-    "Đường 19 Tháng 5",
-    "Đường Hùng Vương",
-    "Đường Bạch Đằng"
+    "Đường Lê Lợi", "Đường Trần Hưng Đạo", "Đường Quang Trung", "Đường Nguyễn Trãi", 
+    "Đường Võ Nguyên Giáp", "Đường Nguyễn Thái Học", "Đường Ngô Quyền", "Đường Lý Thường Kiệt", 
+    "Đường Đinh Tiên Hoàng", "Đường Lê Thánh Tông", "Đường Trần Phú", "Đường Phan Châu Trinh", 
+    "Đường Phan Bội Châu", "Đường Hai Bà Trưng", "Đường Trần Quốc Toản", "Đường Phạm Ngũ Lão", 
+    "Đường Nguyễn Huệ", "Đường Võ Thị Sáu", "Đường Lý Tự Trọng", "Đường Nguyễn Văn Cừ", 
+    "Đường Cách Mạng Tháng Tám", "Đường Độc Lập", "Đường Giải Phóng", "Đường Thống Nhất", 
+    "Đường Điện Biên Phủ", "Đường 30 Tháng 4", "Đường 2 Tháng 9", "Đường 19 Tháng 5", 
+    "Đường Hùng Vương", "Đường Bạch Đằng"
 ];
-
-
-/* =========================================================
-   3. CÁC LOẠI ĐỊA ĐIỂM
-========================================================= */
 
 const loaiDiaDiem = [
-    "Quán cơm",
-    "Nhà nghỉ",
-    "Quán bánh canh",
-    "Quán phở",
-    "Quán hủ tiếu",
-    "Quán bún bò",
-    "Quán cháo",
-    "Quán lẩu",
-    "Quán nướng",
-    "Quán ốc",
-    "Quán hải sản",
-    "Quán ăn vặt",
-    "Quán chè",
-    "Nhà hàng",
-    "Tiệm bánh",
-    "Tiệm kem",
-    "Tiệm trà sữa",
-    "Quán cà phê",
-    "Quán sinh tố",
-    "Quán nhậu",
-    "Khách sạn",
-    "Khu nghỉ dưỡng",
-    "Sân bóng đá",
-    "Phòng tập gym",
-    "Câu lạc bộ bida",
-    "Sân cầu lông",
-    "Sân Pickleball",
-    "Hồ bơi",
-    "Tiệm net",
-    "Quán karaoke",
-    "Khu vui chơi",
-    "Nhà thiếu nhi",
-    "Tiệm tạp hóa",
-    "Trung tâm thương mại",
-    "Cửa hàng tiện lợi",
-    "Tiệm vàng",
-    "Tiệm may",
-    "Tiệm cắt tóc",
-    "Tiệm trang điểm",
-    "Thẩm mỹ viện",
-    "Spa",
-    "Tiệm giặt ủi",
-    "Cửa hàng hoa tươi",
-    "Cửa hàng thời trang",
-    "Cửa hàng giày dép",
-    "Tiệm sửa xe",
-    "Cây xăng",
-    "Tiệm kính mắt",
-    "Cửa hàng điện thoại",
-    "Cửa hàng điện máy",
-    "Trung tâm ngoại ngữ",
-    "Trung tâm tin học",
-    "Phòng khám",
-    "Tiệm thuốc tây",
-    "Nhà thuốc",
-    "Nha khoa",
-    "Phòng chụp X-quang",
-    "Phòng xét nghiệm",
-    "Trung tâm tiêm chủng",
-    "Bệnh viện mắt",
-    "Phòng khám thú y",
-    "Thư viện",
-    "Tiệm đồng hồ",
-    "Sạp thịt heo",
-    "Quán ăn",
-    "Quán lẩu bò",
-    "Quán lẩu dê",
-    "Tiệm cá cảnh",
-    "Vật liệu xây dựng",
-    "Nhà may",
-    "Cửa hàng quần áo",
-    "Cửa hàng đồ gia dụng",
-    "Store sữa",
-    "Tiệm sửa xe",
-    "Tiệm vải"
+    "Quán cơm", "Nhà nghỉ", "Quán bánh canh", "Quán phở", "Quán hủ tiếu", "Quán bún bò", 
+    "Quán cháo", "Quán lẩu", "Quán nướng", "Quán ốc", "Quán hải sản", "Quán ăn vặt", 
+    "Quán chè", "Nhà hàng", "Tiệm bánh", "Tiệm kem", "Tiệm trà sữa", "Quán cà phê", 
+    "Quán sinh tố", "Quán nhậu", "Khách sạn", "Khu nghỉ dưỡng", "Sân bóng đá", "Phòng tập gym", 
+    "Câu lạc bộ bida", "Sân cầu lông", "Sân Pickleball", "Hồ bơi", "Tiệm net", "Quán karaoke", 
+    "Khu vui chơi", "Nhà thiếu nhi", "Tiệm tạp hóa", "Trung tâm thương mại", "Cửa hàng tiện lợi", 
+    "Tiệm vàng", "Tiệm may", "Tiệm cắt tóc", "Tiệm trang điểm", "Thẩm mỹ viện", "Spa", 
+    "Tiệm giặt ủi", "Cửa hàng hoa tươi", "Cửa hàng thời trang", "Cửa hàng giày dép", "Tiệm sửa xe", 
+    "Cây xăng", "Tiệm kính mắt", "Cửa hàng điện thoại", "Cửa hàng điện máy", "Trung tâm ngoại ngữ", 
+    "Trung tâm tin học", "Phòng khám", "Tiệm thuốc tây", "Nhà thuốc", "Nha khoa", 
+    "Phòng chụp X-quang", "Phòng xét nghiệm", "Trung tâm tiêm chủng", "Bệnh viện mắt", 
+    "Phòng khám thú y", "Thư viện", "Tiệm đồng hồ", "Sạp thịt heo", "Quán ăn", "Quán lẩu bò", 
+    "Quán lẩu dê", "Tiệm cá cảnh", "Vật liệu xây dựng", "Nhà may", "Cửa hàng quần áo", 
+    "Cửa hàng đồ gia dụng", "Store sữa", "Tiệm vải", "Tiệm photocopy", "Cửa hàng văn phòng phẩm", 
+    "Tiệm cầm đồ", "Cửa hàng nội thất", "Cửa hàng xe đạp", "Cửa hàng xe máy", "Tiệm rửa xe", 
+    "Đại lý vé máy bay", "Phòng vé xe khách", "Vựa trái cây", "Cửa hàng trái cây nhập khẩu", 
+    "Vựa gạo", "Đại lý gas", "Đại lý nước tinh khiết", "Cửa hàng đồ chơi trẻ em", "Shop mẹ và bé", 
+    "Cửa hàng vật tư nông nghiệp", "Đại lý thức ăn chăn nuôi", "Cửa hàng phân bón", 
+    "Tiệm bánh xèo", "Quán bún riêu", "Quán bún mắm", "Quán hủ tiếu gõ", "Quán cơm tấm", 
+    "Cửa hàng xốp dán tường", "Tiệm sơn"
 ];
 
+/* =========================================================
+   3. DỮ LIỆU KHU VỰC HÀNH CHÍNH
+========================================================= */
+const khuVucMoi = [
+    { xa: "Xã Trung Hiệp", ap: ["Ấp Rạch Ngay", "Ấp Mướp Sát", "Ấp Trung Hưng", "Ấp Bình Phụng", "Ấp Rạch Nưng", "Ấp Trung Trị", "Ấp Ruột Ngựa"] },
+    { xa: "Xã Cái Nhum", ap: ["Ấp Phú An"] },
+    { xa: "Xã Trung Ngãi", ap: ["Ấp 1", "Ấp 2", "Ấp 7", "Ấp 8", "Ấp Giồng Ké", "Ấp Phú Nhuận", "Ấp Kinh"] },
+    { xa: "Xã Hiếu Phụng", ap: ["Ấp Nhơn Ngãi", "Ấp Nhơn Nghĩa", "Ấp Tân Quang", "Ấp Quang Thạnh", "Ấp Hiếu Hiệp", "Ấp Tân Khánh", "Ấp Quang Phú", "Ấp Quang Mỹ", "Ấp Ngãi Thạnh", "Ấp Quang Trường", "Ấp Phú Điền", "Ấp Phú Cường"] },
+    { xa: "Xã Trung Thành", ap: ["Ấp An Nhơn", "Ấp Trung Trạch", "Ấp Xuân Minh 1", "Ấp Xuân Minh 2", "Ấp Trung Xuân", "Ấp Phước Lộc", "Ấp Xuân Lộc"] }
+];
+
+const khuVucCu = [
+    { xa: "Xã Hiếu Phụng", ap: ["Ấp An Hậu", "Ấp An Lạc 1", "Ấp An Lạc 2", "Ấp An Phước", "Ấp Hiếu Hiệp", "Ấp Nhơn Ngãi", "Ấp Nhơn Nghĩa", "Ấp Quang Huy", "Ấp Quang Phú", "Ấp Quang Thạnh", "Ấp Tân Huy", "Ấp Tân Khánh", "Ấp Tân Quang", "Ấp Trung Hòa 1", "Ấp Trung Hòa 2"] },
+    { xa: "Xã Hiếu Thuận", ap: ["Ấp Ngãi Thạnh", "Ấp Phú Cường", "Ấp Phú Điền", "Ấp Quang Mỹ", "Ấp Quang Trường"] },
+    { xa: "Xã Tân An Luông", ap: ["Ấp 3", "Ấp 4", "Ấp 5", "Ấp 6", "Ấp 7", "Ấp 8", "Ấp Bào Xép", "Ấp Bờ Sao", "Ấp Đập Sậy", "Ấp Gò Ân", "Ấp Nước Xoáy", "Ấp Rạch Cốc"] },
+    { xa: "Xã Trung Ngãi", ap: ["Ấp 1", "Ấp 2", "Ấp 3", "Ấp 4", "Ấp Giồng Ké", "Ấp Kinh", "Ấp Phú Nhuận"] },
+    { xa: "Xã Trung Thành Đông", ap: ["Ấp Đại Hòa", "Ấp Đại Nghĩa", "Ấp Đức Hòa", "Ấp Hòa Thuận", "Ấp Phú An", "Ấp Phú Nông"] },
+    { xa: "Xã Trung Hiệp", ap: ["Ấp Bình Phụng", "Ấp Mướp Sát", "Ấp Rạch Ngay", "Ấp Rạch Nưng", "Ấp Ruột Ngựa", "Ấp Trung Hưng", "Ấp Trung Trị"] },
+    { xa: "Xã Trung Thành", ap: ["Ấp 1", "Ấp 2", "Ấp An Điền 1", "Ấp An Điền 2", "Ấp An Lạc Đông", "Ấp An Lạc Tây", "Ấp An Nhơn", "Ấp An Thành Đông", "Ấp An Thành Tây", "Ấp An Trung", "Ấp Bình Thành", "Ấp Bình Trung", "Ấp Phong Thới", "Ấp Phước Lộc", "Ấp Rạch Trúc", "Ấp Trung Điền", "Ấp Trung Tín", "Ấp Trung Trạch", "Ấp Xuân Lộc", "Ấp Xuân Minh 1", "Ấp Xuân Minh 2"] },
+    { xa: "Xã Cái Nhum", ap: ["Ấp Phú An"] }
+];
 
 /* =========================================================
-   4. DỮ LIỆU XÃ + ẤP
-   Mỗi xã có danh sách ấp RIÊNG.
+   4. LOGIC TỰ ĐỘNG LƯU TRỮ (LocalStorage)
 ========================================================= */
+const addressTypeRadios = document.querySelectorAll('input[name="addressType"]');
+const checkAll = document.getElementById('checkAll');
+const xaListDiv = document.getElementById('xaList');
 
-const khuVuc = [
+let currentType = localStorage.getItem('addressType') || 'moi';
+let savedXaMoi = JSON.parse(localStorage.getItem('savedXaMoi')) || khuVucMoi.map(k => k.xa);
+let savedXaCu = JSON.parse(localStorage.getItem('savedXaCu')) || khuVucCu.map(k => k.xa);
 
-    {
-        xa: "Xã Trung Hiệp",
-        ap: [
-            "Ấp Rạch Ngay",
-            "Ấp Mướp Sát",
-            "Ấp Trung Hưng",
-            "Ấp Bình Phụng",
-            "Ấp Rạch Nưng",
-            "Ấp Trung Trị",
-            "Ấp Ruột Ngựa"
-        ]
-    },
+function renderXaList() {
+    const data = currentType === 'moi' ? khuVucMoi : khuVucCu;
+    const activeList = currentType === 'moi' ? savedXaMoi : savedXaCu;
+    xaListDiv.innerHTML = '';
+    
+    let allChecked = true;
 
-    {
-        xa: "Xã Cái Nhum",
-        ap: [
-            "Ấp Phú An"
-        ]
-    },
+    data.forEach(item => {
+        const isChecked = activeList.includes(item.xa);
+        if (!isChecked) allChecked = false;
 
-    {
-        xa: "Xã Trung Ngãi",
-        ap: [
-            "Ấp 1",
-            "Ấp 2",
-            "Ấp 7",
-            "Ấp 8",
-            "Ấp Giồng Ké",
-            "Ấp Phú Nhuận",
-            "Ấp Kinh"
-        ]
-    },
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="checkbox" value="${item.xa}" class="xa-checkbox" ${isChecked ? 'checked' : ''}> ${item.xa}`;
+        
+        label.querySelector('input').addEventListener('change', () => {
+            updateSavedXa();
+        });
+        
+        xaListDiv.appendChild(label);
+    });
 
-    {
-        xa: "Xã Hiếu Phụng",
-        ap: [
-            "Ấp Nhơn Ngãi",
-            "Ấp Nhơn Nghĩa",
-            "Ấp Tân Quang",
-            "Ấp Quang Thạnh",
-            "Ấp Hiếu Hiệp",
-            "Ấp Tân Khánh",
-            "Ấp Quang Phú",
-            "Ấp Quang Mỹ",
-            "Ấp Ngãi Thạnh",
-            "Ấp Quang Trường",
-            "Ấp Phú Điền",
-            "Ấp Phú Cường"
-        ]
-    },
+    checkAll.checked = allChecked;
+}
 
-    {
-        xa: "Xã Trung Thành",
-        ap: [
-            "Ấp An Nhơn",
-            "Ấp Trung Trạch",
-            "Ấp Xuân Minh 1",
-            "Ấp Xuân Minh 2",
-            "Ấp Trung Xuân",
-            "Ấp Phước Lộc",
-            "Ấp Xuân Lộc"
-        ]
+checkAll.addEventListener('change', (e) => {
+    const boxes = document.querySelectorAll('.xa-checkbox');
+    boxes.forEach(box => box.checked = e.target.checked);
+    updateSavedXa();
+});
+
+function updateSavedXa() {
+    const boxes = document.querySelectorAll('.xa-checkbox');
+    const selected = Array.from(boxes).filter(b => b.checked).map(b => b.value);
+    
+    if (currentType === 'moi') {
+        savedXaMoi = selected;
+        localStorage.setItem('savedXaMoi', JSON.stringify(savedXaMoi));
+    } else {
+        savedXaCu = selected;
+        localStorage.setItem('savedXaCu', JSON.stringify(savedXaCu));
     }
 
-];
+    checkAll.checked = selected.length > 0 && selected.length === boxes.length;
+}
 
+addressTypeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        currentType = e.target.value;
+        localStorage.setItem('addressType', currentType);
+        renderXaList();
+    });
+});
+
+// Khởi tạo trạng thái ban đầu
+document.querySelector(`input[value="${currentType}"]`).checked = true;
+renderXaList();
 
 /* =========================================================
-   5. HÀM RANDOM
+   5. CÁC HÀM RANDOM
 ========================================================= */
-
 function randomItem(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-
-/* =========================================================
-   6. TẠO TÊN NGƯỜI
-
-   Random giới tính:
-   - 50% nam
-   - 50% nữ
-
-   Sau khi chọn giới tính sẽ lấy họ, đệm và tên
-   hoàn toàn từ danh sách của giới tính đó.
-========================================================= */
-
-function randomName() {
-
-    const laNam = Math.random() < 0.5;
-
-    const ho = laNam ? hoNam : hoNu;
-    const tenDem = laNam ? tenDemNam : tenDemNu;
-    const ten = laNam ? tenNam : tenNu;
-
-    return `${randomItem(ho)} ${randomItem(tenDem)} ${randomItem(ten)}`;
-}
-
-
-/* =========================================================
-   7. TẠO SỐ NHÀ
-
-   001 - 700
-   Có thể kèm A/B/C/D/E/F
-
-   3 kiểu:
-   - Số nhà 123
-   - Số 123
-   - 123
-
-   Tỷ lệ:
-   - 33%
-   - 33%
-   - 34%
-========================================================= */
-
-function randomSoNha() {
-
-    const number = Math.floor(Math.random() * 700) + 1;
-
-    const formatted = String(number).padStart(3, "0");
-
-    const letters = [
-        "",
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F"
-    ];
-
-    const letter = randomItem(letters);
-
-    const soNha = formatted + letter;
-
-    const random = Math.random();
-
-    if (random < 0.33) {
-        return `Số nhà ${soNha}`;
-    }
-
-    if (random < 0.66) {
-        return `Số ${soNha}`;
-    }
-
-    return soNha;
-}
-
-
-/* =========================================================
-   8. TẠO TÊN ĐỊA ĐIỂM
-
-   Không còn dùng danh sách tenDiaDiem.
-
-   Tên địa điểm được tạo bằng:
-   Loại địa điểm + Tên đệm + Tên
-
-   Giới tính nam/nữ random 50 - 50,
-   hoàn toàn độc lập với giới tính của tên người.
-========================================================= */
-
-function randomDiaDiem() {
-
-    const loai = randomItem(loaiDiaDiem);
-
-    const laNam = Math.random() < 0.5;
-
-    const tenDem = laNam
-        ? tenDemNam
-        : tenDemNu;
-
-    const ten = laNam
-        ? tenNam
-        : tenNu;
-
-    return `${loai} ${randomItem(tenDem)} ${randomItem(ten)}`;
-}
-
-
-/* =========================================================
-   9. TẠO 1 TRONG 3 TIỀN TỐ
-========================================================= */
-
-function randomTienTo() {
-
-    const loai = randomItem([
-        "soNha",
-        "duong",
-        "diaDiem"
-    ]);
-
-    if (loai === "soNha") {
-        return randomSoNha();
-    }
-
-    if (loai === "duong") {
-        return randomItem(duong);
-    }
-
-    return randomDiaDiem();
-}
-
-
-/* =========================================================
-   10. SHUFFLE
-========================================================= */
-
 function shuffle(array) {
-
     const arr = [...array];
-
     for (let i = arr.length - 1; i > 0; i--) {
-
-        const j = Math.floor(
-            Math.random() * (i + 1)
-        );
-
-        [arr[i], arr[j]] =
-            [arr[j], arr[i]];
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-
     return arr;
 }
 
+function randomName() {
+    const laNam = Math.random() < 0.5;
+    const ho = laNam ? hoNam : hoNu;
+    const tenDem = laNam ? tenDemNam : tenDemNu;
+    const ten = laNam ? tenNam : tenNu;
+    return `${randomItem(ho)} ${randomItem(tenDem)} ${randomItem(ten)}`;
+}
 
-/* =========================================================
-   11. TẠO ĐỊA CHỈ
-========================================================= */
+// Random Số nhà từ 001 đến 800, tỉ lệ 50% có chữ cái (A-H)
+function randomSoNha() {
+    const number = Math.floor(Math.random() * 800) + 1;
+    let soNha = String(number).padStart(3, "0");
+
+    if (Math.random() < 0.5) {
+        const letters = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        soNha += randomItem(letters);
+    }
+
+    const random = Math.random();
+    if (random < 0.33) return `Số nhà ${soNha}`;
+    if (random < 0.66) return `Số ${soNha}`;
+    return soNha;
+}
+
+function randomDiaDiem() {
+    const loai = randomItem(loaiDiaDiem);
+    const laNam = Math.random() < 0.5;
+    const tenDem = laNam ? tenDemNam : tenDemNu;
+    const ten = laNam ? tenNam : tenNu;
+    return `${loai} ${randomItem(tenDem)} ${randomItem(ten)}`;
+}
 
 function randomAddress() {
+    const data = currentType === 'moi' ? khuVucMoi : khuVucCu;
+    const activeXaList = currentType === 'moi' ? savedXaMoi : savedXaCu;
 
-    /*
-        Chọn xã trước.
-        Sau đó chỉ lấy ấp trong đúng xã đó.
-    */
+    // Nếu không tick ô nào -> báo lỗi
+    if (activeXaList.length === 0) {
+        alert("Tạo thất bại: Bạn chưa chọn xã nào trong phần Cài đặt dữ liệu hành chính!");
+        return "Lỗi: Chưa chọn xã";
+    }
 
-    const selectedArea =
-        randomItem(khuVuc);
+    const validKhuVuc = data.filter(k => activeXaList.includes(k.xa));
+    const selectedArea = randomItem(validKhuVuc);
+    const xa = selectedArea.xa;
+    const ap = randomItem(selectedArea.ap);
 
-    const xa =
-        selectedArea.xa;
-
-    const ap =
-        randomItem(selectedArea.ap);
-
-
-    /*
-        Có 4 loại thành phần:
-
-        - số nhà
-        - đường
-        - địa điểm
-        - ấp
-
-        Cần đúng 3 thành phần.
-
-        Ấp luôn bắt buộc.
-
-        Hai thành phần còn lại lấy ngẫu nhiên
-        từ số nhà / đường / địa điểm.
-    */
-
-    const otherTypes =
-        shuffle([
-            "soNha",
-            "duong",
-            "diaDiem"
-        ]).slice(0, 2);
-
-
-    let parts = [];
-
-
-    /*
-        Thêm ấp.
-    */
-
-    parts.push(ap);
-
-
-    /*
-        Thêm 2 thành phần khác.
-    */
+    const otherTypes = shuffle(["soNha", "duong", "diaDiem"]).slice(0, 2);
+    let parts = [ap];
 
     otherTypes.forEach(type => {
-
-        if (type === "soNha") {
-            parts.push(
-                randomSoNha()
-            );
-        }
-
-        else if (type === "duong") {
-            parts.push(
-                randomItem(duong)
-            );
-        }
-
-        else if (type === "diaDiem") {
-            parts.push(
-                randomDiaDiem()
-            );
-        }
-
+        if (type === "soNha") parts.push(randomSoNha());
+        else if (type === "duong") parts.push(randomItem(duong));
+        else if (type === "diaDiem") parts.push(randomDiaDiem());
     });
-
-
-    /*
-        Xáo trộn hoàn toàn thứ tự
-        của 3 thành phần.
-    */
 
     parts = shuffle(parts);
 
-
-    /*
-        Cuối cùng thêm xã + tỉnh.
-    */
-
-    return (
-        parts.join(", ") +
-        ", " +
-        xa +
-        ", tỉnh Vĩnh Long"
-    );
+    // Cấu trúc địa chỉ theo loại
+    if (currentType === 'cu') {
+        const huyen = (xa === "Xã Cái Nhum") ? "huyện Mang Thít" : "huyện Vũng Liêm";
+        return parts.join(", ") + ", " + xa + ", " + huyen + ", tỉnh Vĩnh Long";
+    } else {
+        return parts.join(", ") + ", " + xa + ", tỉnh Vĩnh Long";
+    }
 }
 
-
 /* =========================================================
-   12. TẠO TẤT CẢ
+   6. HÀM GIAO TIẾP VỚI GIAO DIỆN
 ========================================================= */
-
 function generateAll() {
+    const name = randomName();
+    const address = randomAddress();
 
-    const name =
-        randomName();
+    if(address === "Lỗi: Chưa chọn xã") {
+        document.getElementById("nameOutput").textContent = "---";
+        document.getElementById("addressOutput").textContent = "---";
+        return;
+    }
 
-    const address =
-        randomAddress();
-
-    document
-        .getElementById("nameOutput")
-        .textContent = name;
-
-    document
-        .getElementById("addressOutput")
-        .textContent = address;
-
-    document
-        .getElementById("status")
-        .textContent = "";
+    document.getElementById("nameOutput").textContent = name;
+    document.getElementById("addressOutput").textContent = address;
+    document.getElementById("status").textContent = "";
 }
-
-
-/* =========================================================
-   13. SAO CHÉP
-========================================================= */
 
 async function copyAll() {
+    const name = document.getElementById("nameOutput").textContent;
+    const address = document.getElementById("addressOutput").textContent;
 
-    const name =
-        document
-            .getElementById("nameOutput")
-            .textContent;
+    if(address === "Lỗi: Chưa chọn xã" || address === "---") return;
 
-    const address =
-        document
-            .getElementById("addressOutput")
-            .textContent;
-
-    const text =
-        `Tên: ${name}\n` +
-        `Địa chỉ: ${address}`;
-
+    const text = `Tên: ${name}\nĐịa chỉ: ${address}`;
 
     try {
-
-        await navigator
-            .clipboard
-            .writeText(text);
-
-        document
-            .getElementById("status")
-            .textContent =
-            "Đã sao chép tên và địa chỉ!";
-
-        setTimeout(() => {
-
-            document
-                .getElementById("status")
-                .textContent = "";
-
-        }, 2000);
-
-    }
-
-    catch (error) {
-
-        document
-            .getElementById("status")
-            .textContent =
-            "Không thể sao chép tự động.";
-
+        await navigator.clipboard.writeText(text);
+        document.getElementById("status").textContent = "Đã sao chép tên và địa chỉ!";
+        setTimeout(() => { document.getElementById("status").textContent = ""; }, 2000);
+    } catch (error) {
+        document.getElementById("status").textContent = "Không thể sao chép tự động.";
     }
 }
 
-
-/* =========================================================
-   14. CHẠY NGAY KHI MỞ TRANG
-========================================================= */
-
+// Chạy lần đầu tiên
 generateAll();
 
 </script>
-
 </body>
 </html>
