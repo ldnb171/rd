@@ -212,10 +212,26 @@
         .usage-time {
             font-size: 13px;
             color: #64748b;
+            display: flex;
+            align-items: center;
         }
 
         .usage-time span {
             font-weight: bold;
+            color: #3b82f6;
+            margin-left: 5px;
+        }
+
+        .icon-btn {
+            cursor: pointer;
+            margin-left: 6px;
+            color: #64748b;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .icon-btn:hover {
             color: #3b82f6;
         }
 
@@ -258,6 +274,68 @@
 
         .btn-save-note { background: #10b981; color: white; }
         .btn-save-note:hover { background: #059669; }
+
+        /* --- MODAL INPUT TIME --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 320px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            text-align: center;
+        }
+
+        .modal-box h3 {
+            margin: 0 0 15px 0;
+            color: #1e293b;
+        }
+
+        .modal-input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            margin-bottom: 5px;
+        }
+        
+        .modal-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .modal-error {
+            color: #ef4444;
+            font-size: 13px;
+            min-height: 18px;
+            margin-bottom: 15px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-buttons button {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+        }
 
         @media (max-width: 600px) {
             .card { padding: 20px; }
@@ -309,6 +387,10 @@
             <button class="copy-btn" onclick="copyAddress()">Copy Địa chỉ</button>
             <button class="copy-btn" onclick="copyAll()">Copy Tất cả</button>
         </div>
+        <div class="copy-row">
+            <button class="copy-btn" onclick="copyRandomPart()">Copy Phần địa chỉ</button>
+            <button class="copy-btn" onclick="copyAdminPart()">Copy Xã đang chọn</button>
+        </div>
 
         <div class="status" id="status"></div>
 
@@ -323,7 +405,24 @@
     </div>
 </div>
 
+<!-- MODAL NHẬP THỜI GIAN THỦ CÔNG -->
+<div id="timeModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3>Nhập thời gian</h3>
+        <input type="text" id="manualTimeInput" class="modal-input" autocomplete="off">
+        <div id="modalError" class="modal-error"></div>
+        <div class="modal-buttons">
+            <button class="btn-sm btn-undo" onclick="closeTimeModal()">Hủy</button>
+            <button class="btn-sm btn-use" onclick="saveTimeModal()">Lưu</button>
+        </div>
+    </div>
+</div>
+
 <script>
+// Khai báo biến lưu riêng biệt 2 thành phần địa chỉ
+let generatedRandomPart = "";
+let generatedAdminPart = "";
+
 /* =========================================================
    1. DỮ LIỆU TÊN NAM / NỮ
 ========================================================= */
@@ -454,7 +553,7 @@ function renderXaList() {
     });
 
     checkAll.checked = allChecked;
-    renderUsageList(); // Render log khu vực bên dưới luôn
+    renderUsageList();
 }
 
 checkAll.addEventListener('change', (e) => {
@@ -486,33 +585,34 @@ addressTypeRadios.forEach(radio => {
 });
 
 /* =========================================================
-   5. LOGIC QUẢN LÝ "SỬ DỤNG GẦN ĐÂY"
+   5. LOGIC QUẢN LÝ "SỬ DỤNG GẦN ĐÂY" VÀ MODAL
 ========================================================= */
 let usageData = JSON.parse(localStorage.getItem('usageData')) || {};
+let currentEditingXa = null;
 
-function getUsageKey(xa) {
-    return `${currentType}_${xa}`;
-}
-
+function getUsageKey(xa) { return `${currentType}_${xa}`; }
 function getUsage(xa) {
     const key = getUsageKey(xa);
     return usageData[key] || { lastUsed: null, prevUsed: null, note: "" };
 }
-
 function setUsage(xa, data) {
     const key = getUsageKey(xa);
     usageData[key] = data;
     localStorage.setItem('usageData', JSON.stringify(usageData));
 }
 
+function getCurrentFormattedTime() {
+    const pad = n => n.toString().padStart(2, '0');
+    const now = new Date();
+    const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const dateStr = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()}`;
+    return `${timeStr} ${dateStr}`;
+}
+
 function markUsed(xa) {
     let data = getUsage(xa);
     data.prevUsed = data.lastUsed;
-    
-    // Lấy giờ hiện tại format DD/MM/YYYY HH:MM:SS
-    const now = new Date();
-    data.lastUsed = now.toLocaleString('vi-VN');
-    
+    data.lastUsed = getCurrentFormattedTime();
     setUsage(xa, data);
     renderUsageList();
 }
@@ -521,7 +621,7 @@ function undoUsed(xa) {
     let data = getUsage(xa);
     if (data.prevUsed !== null) {
         data.lastUsed = data.prevUsed;
-        data.prevUsed = null; // Chỉ cho hoàn tác 1 lần
+        data.prevUsed = null;
         setUsage(xa, data);
         renderUsageList();
     } else {
@@ -529,18 +629,108 @@ function undoUsed(xa) {
     }
 }
 
+// Xử lý modal
+function openTimeModal(xa) {
+    currentEditingXa = xa;
+    const input = document.getElementById('manualTimeInput');
+    input.value = '';
+    document.getElementById('modalError').textContent = '';
+    document.getElementById('timeModal').classList.add('active');
+    input.focus();
+}
+
+function closeTimeModal() {
+    document.getElementById('timeModal').classList.remove('active');
+    currentEditingXa = null;
+}
+
+document.getElementById('manualTimeInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') saveTimeModal();
+});
+
+function parseManualTime(val) {
+    const parts = val.trim().split(/\s+/);
+    const timePart = parts[0];
+    const datePart = parts[1] || "";
+
+    const now = new Date();
+    let hh, mm, ss = "00";
+    let dd = String(now.getDate()).padStart(2, '0');
+    let mo = String(now.getMonth() + 1).padStart(2, '0');
+    let yyyy = now.getFullYear();
+
+    if (timePart.length === 4) {
+        hh = timePart.substring(0, 2);
+        mm = timePart.substring(2, 4);
+    } else if (timePart.length === 6) {
+        hh = timePart.substring(0, 2);
+        mm = timePart.substring(2, 4);
+        ss = timePart.substring(4, 6);
+    } else {
+        return null; 
+    }
+
+    if (datePart) {
+        if (datePart.length === 4) {
+            dd = datePart.substring(0, 2);
+            mo = datePart.substring(2, 4);
+        } else if (datePart.length === 8) {
+            dd = datePart.substring(0, 2);
+            mo = datePart.substring(2, 4);
+            yyyy = datePart.substring(4, 8);
+        } else {
+            return null;
+        }
+    }
+
+    const hInt = parseInt(hh, 10);
+    const mInt = parseInt(mm, 10);
+    const sInt = parseInt(ss, 10);
+    const dInt = parseInt(dd, 10);
+    const moInt = parseInt(mo, 10);
+
+    if (isNaN(hInt) || hInt < 0 || hInt > 23) return null;
+    if (isNaN(mInt) || mInt < 0 || mInt > 59) return null;
+    if (isNaN(sInt) || sInt < 0 || sInt > 59) return null;
+    if (isNaN(dInt) || dInt < 1 || dInt > 31) return null;
+    if (isNaN(moInt) || moInt < 1 || moInt > 12) return null;
+
+    return `${String(hInt).padStart(2, '0')}:${String(mInt).padStart(2, '0')}:${String(sInt).padStart(2, '0')} ${String(dInt).padStart(2, '0')}/${String(moInt).padStart(2, '0')}/${yyyy}`;
+}
+
+function saveTimeModal() {
+    const inputVal = document.getElementById('manualTimeInput').value;
+    if (!inputVal.trim()) {
+        closeTimeModal();
+        return;
+    }
+
+    const formatted = parseManualTime(inputVal);
+    if (!formatted) {
+        document.getElementById('modalError').textContent = 'Thời gian không hợp lệ. Hãy kiểm tra lại số liệu.';
+        return;
+    }
+
+    let data = getUsage(currentEditingXa);
+    data.prevUsed = data.lastUsed;
+    data.lastUsed = formatted;
+    setUsage(currentEditingXa, data);
+    
+    renderUsageList();
+    closeTimeModal();
+}
+
 function saveNoteLocal(xa, inputId, btnId) {
     let data = getUsage(xa);
     data.note = document.getElementById(inputId).value;
     setUsage(xa, data);
     
-    // Feedback
     const btn = document.getElementById(btnId);
     btn.textContent = "Đã lưu ✓";
-    btn.style.background = "#059669"; // Màu đậm hơn chút
+    btn.style.background = "#059669";
     setTimeout(() => {
         btn.textContent = "Lưu";
-        btn.style.background = ""; // Trả về css gốc
+        btn.style.background = "";
     }, 2000);
 }
 
@@ -557,19 +747,28 @@ function renderUsageList() {
         const noteId = `note_input_${index}`;
         const btnId = `btn_note_${index}`;
 
+        const clockIcon = `
+            <div class="icon-btn" onclick="openTimeModal('${xa}')" title="Chỉnh sửa giờ">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+        `;
+
         const div = document.createElement('div');
         div.className = 'usage-item';
         div.innerHTML = `
             <div class="usage-header">
                 <div class="usage-xa-name">${xa}</div>
-                <div class="usage-time">Lần cuối: ${timeDisplay}</div>
+                <div class="usage-time">Lần cuối: ${timeDisplay} ${clockIcon}</div>
             </div>
             <div class="usage-actions">
                 <button class="btn-sm btn-use" onclick="markUsed('${xa}')">Dùng</button>
                 <button class="btn-sm btn-undo" onclick="undoUsed('${xa}')">Hoàn tác</button>
             </div>
             <div class="note-row">
-                <input type="text" id="${noteId}" placeholder="Ghi chú công việc..." value="${uData.note}">
+                <input type="text" id="${noteId}" placeholder="Ghi chú" value="${uData.note}">
                 <button id="${btnId}" class="btn-sm btn-save-note" onclick="saveNoteLocal('${xa}', '${noteId}', '${btnId}')">Lưu</button>
             </div>
         `;
@@ -577,7 +776,6 @@ function renderUsageList() {
     });
 }
 
-// Khởi tạo ban đầu
 document.querySelector(`input[value="${currentType}"]`).checked = true;
 renderXaList();
 
@@ -623,6 +821,8 @@ function randomAddress() {
 
     if (activeXaList.length === 0) {
         alert("Tạo thất bại: Bạn chưa chọn xã nào trong phần Cài đặt dữ liệu hành chính!");
+        generatedRandomPart = "";
+        generatedAdminPart = "";
         return "Lỗi: Chưa chọn xã";
     }
 
@@ -640,12 +840,16 @@ function randomAddress() {
     });
     parts = shuffle(parts);
 
+    generatedRandomPart = parts.join(", ");
+    
     if (currentType === 'cu') {
         const huyen = (xa === "Xã Cái Nhum") ? "huyện Mang Thít" : "huyện Vũng Liêm";
-        return parts.join(", ") + ", " + xa + ", " + huyen + ", tỉnh Vĩnh Long";
+        generatedAdminPart = `${xa}, ${huyen}, tỉnh Vĩnh Long`;
     } else {
-        return parts.join(", ") + ", " + xa + ", tỉnh Vĩnh Long";
+        generatedAdminPart = `${xa}, tỉnh Vĩnh Long`;
     }
+
+    return `${generatedRandomPart}, ${generatedAdminPart}`;
 }
 
 /* =========================================================
@@ -689,7 +893,7 @@ function copyName() {
 
 function copyAddress() {
     const address = document.getElementById("addressOutput").textContent;
-    copyText(address, "Đã sao chép Địa chỉ!");
+    copyText(address, "Đã sao chép Địa chỉ hoàn chỉnh!");
 }
 
 function copyAll() {
@@ -698,6 +902,14 @@ function copyAll() {
     if(address === "Lỗi: Chưa chọn xã" || address === "---") return;
     const text = `Tên: ${name}\nĐịa chỉ: ${address}`;
     copyText(text, "Đã sao chép Tên và Địa chỉ!");
+}
+
+function copyRandomPart() {
+    copyText(generatedRandomPart, "Đã sao chép Phần địa chỉ!");
+}
+
+function copyAdminPart() {
+    copyText(generatedAdminPart, "Đã sao chép Xã đang chọn!");
 }
 
 // Chạy lần đầu tiên
