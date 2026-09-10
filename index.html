@@ -116,6 +116,16 @@
             font-size: 16px;
         }
 
+        .input-symbol {
+            padding: 5px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            font-size: 13px;
+            width: 160px;
+        }
+        .input-symbol:focus { border-color: #3b82f6; }
+
         /* --- BUTTONS --- */
         .button-row {
             display: flex;
@@ -177,10 +187,28 @@
             border-top: 2px dashed #cbd5e1;
         }
 
-        .usage-section h2 {
-            margin: 0 0 15px 0;
+        .usage-header-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .usage-header-main h2 {
+            margin: 0;
             font-size: 20px;
             color: #1e293b;
+        }
+
+        .sort-select {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            font-size: 13px;
+            color: #1e293b;
+            background-color: #fff;
+            cursor: pointer;
         }
 
         .usage-list {
@@ -266,14 +294,12 @@
             padding: 8px 12px;
             font-size: 13px;
             outline: none;
+            transition: 0.3s;
         }
         
         .note-row input:focus {
             border-color: #3b82f6;
         }
-
-        .btn-save-note { background: #10b981; color: white; }
-        .btn-save-note:hover { background: #059669; }
 
         /* --- MODAL INPUT TIME --- */
         .modal-overlay {
@@ -343,6 +369,7 @@
             .copy-row { flex-direction: column; }
             .xa-list { grid-template-columns: 1fr; }
             .usage-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .usage-header-main { flex-direction: column; align-items: flex-start; gap: 10px;}
         }
     </style>
 </head>
@@ -369,7 +396,10 @@
 
         <!-- TÊN -->
         <div class="result-box">
-            <span class="label">Tên ngẫu nhiên</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span class="label" style="margin-bottom: 0;">Tên ngẫu nhiên</span>
+                <input type="text" id="symbolInput" class="input-symbol" placeholder="Ký hiệu (VD: x, #...)" autocomplete="off">
+            </div>
             <div class="output" id="nameOutput">Đang tạo...</div>
         </div>
 
@@ -396,7 +426,14 @@
 
         <!-- KHU VỰC SỬ DỤNG GẦN ĐÂY -->
         <div class="usage-section">
-            <h2>Sử dụng gần đây:</h2>
+            <div class="usage-header-main">
+                <h2>Sử dụng gần đây:</h2>
+                <select id="sortUsage" class="sort-select" onchange="changeSortUsage()">
+                    <option value="default">Sắp xếp: Mặc định</option>
+                    <option value="newest">Sắp xếp: Mới nhất trước</option>
+                    <option value="oldest">Sắp xếp: Cũ nhất trước</option>
+                </select>
+            </div>
             <div id="usageListContainer" class="usage-list">
                 <!-- Nội dung render bằng JS -->
             </div>
@@ -419,93 +456,45 @@
 </div>
 
 <script>
-// Khai báo biến lưu riêng biệt 2 thành phần địa chỉ
+// Khai báo biến
 let generatedRandomPart = "";
 let generatedAdminPart = "";
 
 /* =========================================================
-   1. DỮ LIỆU TÊN NAM / NỮ
+   1. DI CHUYỂN DỮ LIỆU CŨ (MIGRATION: Cái Nhum -> An Phước)
 ========================================================= */
-const hoNam = [
-    "Nguyễn", "Trần", "Lê", "Phạm", "Huỳnh", "Phan", "Võ", "Đặng", "Bùi", "Đỗ", 
-    "Hồ", "Ngô", "Dương", "Lý", "Mai", "Trương", "Đinh", "Vũ", "Tạ", "Cao", 
-    "Châu", "Tô", "La", "Đoàn", "Lương", "Tôn", "Từ", "Mạc", "Tiêu", "Trịnh"
-];
-const tenDemNam = [
-    "Văn", "Hữu", "Minh", "Quốc", "Đức", "Thanh", "Hoàng", "Gia", "Anh", "Nhật", 
-    "Tuấn", "Xuân", "Thành", "Công", "Phúc", "Đình", "Trung", "Quang", "Khắc", "Bá", 
-    "Sỹ", "Trường", "Thế", "Bảo", "Trí", "Việt", "Đăng", "Khôi", "Tài", "Đạt"
-];
-const tenNam = [
-    "An", "Anh", "Bảo", "Bình", "Bửu", "Duy", "Đạt", "Đức", "Điền", "Đăng", 
-    "Hải", "Hiếu", "Hoàng", "Hùng", "Hào", "Khang", "Khôi", "Khiêm", "Khương", "Khánh", 
-    "Khanh", "Long", "Lâm", "Minh", "Nam", "Nghĩa", "Nhân", "Phát", "Phong", "Phúc", 
-    "Phú", "Quân", "Sang", "Thành", "Thiện", "Trí", "Tuấn", "Tùng", "Tài", "Trọng", 
-    "Vinh", "Việt", "Vũ", "Cường", "Chí", "Dũng", "Giang", "Hậu", "Kiên", "Lộc", 
-    "Mạnh", "Nghiêm", "Nhật", "Quang", "Sơn", "Thắng", "Thịnh", "Tiến", "Toàn", "Trung", 
-    "Tín", "Vượng", "Xuân", "Dương", "Khải", "Thạch", "Triết", "Bách", "Đại", "Kỳ", 
-    "Toại", "Huy", "Hưng", "Luân", "Bằng", "Kính", "Tường", "Ân", "Thái", "Nguyên"
-];
-const hoNu = [
-    "Nguyễn", "Trần", "Lê", "Phạm", "Huỳnh", "Phan", "Võ", "Đặng", "Bùi", "Đỗ", 
-    "Hồ", "Ngô", "Dương", "Lý", "Mai", "Trương", "Đinh", "Vũ", "Tạ", "Cao", 
-    "Châu", "Tô", "La", "Đoàn", "Lương", "Tôn", "Từ", "Mạc", "Tiêu", "Trịnh"
-];
-const tenDemNu = [
-    "Thị", "Ngọc", "Thu", "Kim", "Thanh", "Minh", "Bảo", "Hồng", "Diệu", "Mỹ", 
-    "Phương", "Quỳnh", "Khánh", "Gia", "Hoài", "Anh", "Tú", "Tường", "Kiều", "Nhật", 
-    "Thùy", "Ánh", "Xuân", "Hải", "Tuệ", "Bích", "Uyên", "Nhã", "Đan", "Cẩm"
-];
-const tenNu = [
-    "An", "Anh", "Ân", "Bích", "Chi", "Châu", "Diễm", "Dung", "Giang", "Hà", 
-    "Hân", "Hiền", "Hoa", "Hồng", "Hương", "Khánh", "Lan", "Linh", "Loan", "Ly", 
-    "Mai", "My", "Nghi", "Ngân", "Ngọc", "Như", "Oanh", "Phương", "Quỳnh", "Thảo", 
-    "Thư", "Thúy", "Trang", "Trâm", "Trinh", "Tú", "Uyên", "Vân", "Vy", "Xuân", 
-    "Yến", "Yến Nhi", "Ái", "Băng", "Cẩm", "Đan", "Đào", "Hạnh", "Hân Nhi", "Huyền", 
-    "Khanh", "Kiều", "Lam", "Lệ", "Mộng", "Nhã", "Nhi", "Quyên", "Tâm", "Tiên", 
-    "Tuyết", "Vi", "Yên", "Đông", "Ánh", "Giao", "Sương", "Khuê", "Thương", "Doanh", 
-    "Thắm", "Trà", "Cúc", "Huệ", "Nga", "Trân", "Uyển", "Thục", "Đài"
-];
+function runDataMigration() {
+    let uData = JSON.parse(localStorage.getItem('usageData')) || {};
+    if (uData['cu_Xã Cái Nhum']) {
+        uData['cu_Xã An Phước'] = uData['cu_Xã Cái Nhum'];
+        delete uData['cu_Xã Cái Nhum'];
+        localStorage.setItem('usageData', JSON.stringify(uData));
+    }
+
+    let savedCu = JSON.parse(localStorage.getItem('savedXaCu'));
+    if (savedCu) {
+        const idx = savedCu.indexOf("Xã Cái Nhum");
+        if (idx !== -1) {
+            savedCu[idx] = "Xã An Phước";
+            localStorage.setItem('savedXaCu', JSON.stringify(savedCu));
+        }
+    }
+}
+runDataMigration(); // Chạy ngay khi mở web
 
 /* =========================================================
-   2. DỮ LIỆU ĐỊA CHỈ & LOẠI ĐỊA ĐIỂM
+   2. DỮ LIỆU TÊN, ĐỊA ĐIỂM VÀ KHU VỰC
 ========================================================= */
-const duong = [
-    "Đường Lê Lợi", "Đường Trần Hưng Đạo", "Đường Quang Trung", "Đường Nguyễn Trãi", 
-    "Đường Võ Nguyên Giáp", "Đường Nguyễn Thái Học", "Đường Ngô Quyền", "Đường Lý Thường Kiệt", 
-    "Đường Đinh Tiên Hoàng", "Đường Lê Thánh Tông", "Đường Trần Phú", "Đường Phan Châu Trinh", 
-    "Đường Phan Bội Châu", "Đường Hai Bà Trưng", "Đường Trần Quốc Toản", "Đường Phạm Ngũ Lão", 
-    "Đường Nguyễn Huệ", "Đường Võ Thị Sáu", "Đường Lý Tự Trọng", "Đường Nguyễn Văn Cừ", 
-    "Đường Cách Mạng Tháng Tám", "Đường Độc Lập", "Đường Giải Phóng", "Đường Thống Nhất", 
-    "Đường Điện Biên Phủ", "Đường 30 Tháng 4", "Đường 2 Tháng 9", "Đường 19 Tháng 5", 
-    "Đường Hùng Vương", "Đường Bạch Đằng"
-];
-const loaiDiaDiem = [
-    "Quán cơm", "Nhà nghỉ", "Quán bánh canh", "Quán phở", "Quán hủ tiếu", "Quán bún bò", 
-    "Quán cháo", "Quán lẩu", "Quán nướng", "Quán ốc", "Quán hải sản", "Quán ăn vặt", 
-    "Quán chè", "Nhà hàng", "Tiệm bánh", "Tiệm kem", "Tiệm trà sữa", "Quán cà phê", 
-    "Quán sinh tố", "Quán nhậu", "Khách sạn", "Khu nghỉ dưỡng", "Sân bóng đá", "Phòng tập gym", 
-    "Câu lạc bộ bida", "Sân cầu lông", "Sân Pickleball", "Hồ bơi", "Tiệm net", "Quán karaoke", 
-    "Khu vui chơi", "Nhà thiếu nhi", "Tiệm tạp hóa", "Trung tâm thương mại", "Cửa hàng tiện lợi", 
-    "Tiệm vàng", "Tiệm may", "Tiệm cắt tóc", "Tiệm trang điểm", "Thẩm mỹ viện", "Spa", 
-    "Tiệm giặt ủi", "Cửa hàng hoa tươi", "Cửa hàng thời trang", "Cửa hàng giày dép", "Tiệm sửa xe", 
-    "Cây xăng", "Tiệm kính mắt", "Cửa hàng điện thoại", "Cửa hàng điện máy", "Trung tâm ngoại ngữ", 
-    "Trung tâm tin học", "Phòng khám", "Tiệm thuốc tây", "Nhà thuốc", "Nha khoa", 
-    "Phòng chụp X-quang", "Phòng xét nghiệm", "Trung tâm tiêm chủng", "Bệnh viện mắt", 
-    "Phòng khám thú y", "Thư viện", "Tiệm đồng hồ", "Sạp thịt heo", "Quán ăn", "Quán lẩu bò", 
-    "Quán lẩu dê", "Tiệm cá cảnh", "Vật liệu xây dựng", "Nhà may", "Cửa hàng quần áo", 
-    "Cửa hàng đồ gia dụng", "Store sữa", "Tiệm vải", "Tiệm photocopy", "Cửa hàng văn phòng phẩm", 
-    "Tiệm cầm đồ", "Cửa hàng nội thất", "Cửa hàng xe đạp", "Cửa hàng xe máy", "Tiệm rửa xe", 
-    "Đại lý vé máy bay", "Phòng vé xe khách", "Vựa trái cây", "Cửa hàng trái cây nhập khẩu", 
-    "Vựa gạo", "Đại lý gas", "Đại lý nước tinh khiết", "Cửa hàng đồ chơi trẻ em", "Shop mẹ và bé", 
-    "Cửa hàng vật tư nông nghiệp", "Đại lý thức ăn chăn nuôi", "Cửa hàng phân bón", 
-    "Tiệm bánh xèo", "Quán bún riêu", "Quán bún mắm", "Quán hủ tiếu gõ", "Quán cơm tấm", 
-    "Cửa hàng xốp dán tường", "Tiệm sơn"
-];
+const hoNam = ["Nguyễn", "Trần", "Lê", "Phạm", "Huỳnh", "Phan", "Võ", "Đặng", "Bùi", "Đỗ", "Hồ", "Ngô", "Dương", "Lý", "Mai", "Trương", "Đinh", "Vũ", "Tạ", "Cao", "Châu", "Tô", "La", "Đoàn", "Lương", "Tôn", "Từ", "Mạc", "Tiêu", "Trịnh"];
+const tenDemNam = ["Văn", "Hữu", "Minh", "Quốc", "Đức", "Thanh", "Hoàng", "Gia", "Anh", "Nhật", "Tuấn", "Xuân", "Thành", "Công", "Phúc", "Đình", "Trung", "Quang", "Khắc", "Bá", "Sỹ", "Trường", "Thế", "Bảo", "Trí", "Việt", "Đăng", "Khôi", "Tài", "Đạt"];
+const tenNam = ["An", "Anh", "Bảo", "Bình", "Bửu", "Duy", "Đạt", "Đức", "Điền", "Đăng", "Hải", "Hiếu", "Hoàng", "Hùng", "Hào", "Khang", "Khôi", "Khiêm", "Khương", "Khánh", "Khanh", "Long", "Lâm", "Minh", "Nam", "Nghĩa", "Nhân", "Phát", "Phong", "Phúc", "Phú", "Quân", "Sang", "Thành", "Thiện", "Trí", "Tuấn", "Tùng", "Tài", "Trọng", "Vinh", "Việt", "Vũ", "Cường", "Chí", "Dũng", "Giang", "Hậu", "Kiên", "Lộc", "Mạnh", "Nghiêm", "Nhật", "Quang", "Sơn", "Thắng", "Thịnh", "Tiến", "Toàn", "Trung", "Tín", "Vượng", "Xuân", "Dương", "Khải", "Thạch", "Triết", "Bách", "Đại", "Kỳ", "Toại", "Huy", "Hưng", "Luân", "Bằng", "Kính", "Tường", "Ân", "Thái", "Nguyên"];
+const hoNu = ["Nguyễn", "Trần", "Lê", "Phạm", "Huỳnh", "Phan", "Võ", "Đặng", "Bùi", "Đỗ", "Hồ", "Ngô", "Dương", "Lý", "Mai", "Trương", "Đinh", "Vũ", "Tạ", "Cao", "Châu", "Tô", "La", "Đoàn", "Lương", "Tôn", "Từ", "Mạc", "Tiêu", "Trịnh"];
+const tenDemNu = ["Thị", "Ngọc", "Thu", "Kim", "Thanh", "Minh", "Bảo", "Hồng", "Diệu", "Mỹ", "Phương", "Quỳnh", "Khánh", "Gia", "Hoài", "Anh", "Tú", "Tường", "Kiều", "Nhật", "Thùy", "Ánh", "Xuân", "Hải", "Tuệ", "Bích", "Uyên", "Nhã", "Đan", "Cẩm"];
+const tenNu = ["An", "Anh", "Ân", "Bích", "Chi", "Châu", "Diễm", "Dung", "Giang", "Hà", "Hân", "Hiền", "Hoa", "Hồng", "Hương", "Khánh", "Lan", "Linh", "Loan", "Ly", "Mai", "My", "Nghi", "Ngân", "Ngọc", "Như", "Oanh", "Phương", "Quỳnh", "Thảo", "Thư", "Thúy", "Trang", "Trâm", "Trinh", "Tú", "Uyên", "Vân", "Vy", "Xuân", "Yến", "Yến Nhi", "Ái", "Băng", "Cẩm", "Đan", "Đào", "Hạnh", "Hân Nhi", "Huyền", "Khanh", "Kiều", "Lam", "Lệ", "Mộng", "Nhã", "Nhi", "Quyên", "Tâm", "Tiên", "Tuyết", "Vi", "Yên", "Đông", "Ánh", "Giao", "Sương", "Khuê", "Thương", "Doanh", "Thắm", "Trà", "Cúc", "Huệ", "Nga", "Trân", "Uyển", "Thục", "Đài"];
 
-/* =========================================================
-   3. DỮ LIỆU KHU VỰC HÀNH CHÍNH
-========================================================= */
+const duong = ["Đường Lê Lợi", "Đường Trần Hưng Đạo", "Đường Quang Trung", "Đường Nguyễn Trãi", "Đường Võ Nguyên Giáp", "Đường Nguyễn Thái Học", "Đường Ngô Quyền", "Đường Lý Thường Kiệt", "Đường Đinh Tiên Hoàng", "Đường Lê Thánh Tông", "Đường Trần Phú", "Đường Phan Châu Trinh", "Đường Phan Bội Châu", "Đường Hai Bà Trưng", "Đường Trần Quốc Toản", "Đường Phạm Ngũ Lão", "Đường Nguyễn Huệ", "Đường Võ Thị Sáu", "Đường Lý Tự Trọng", "Đường Nguyễn Văn Cừ", "Đường Cách Mạng Tháng Tám", "Đường Độc Lập", "Đường Giải Phóng", "Đường Thống Nhất", "Đường Điện Biên Phủ", "Đường 30 Tháng 4", "Đường 2 Tháng 9", "Đường 19 Tháng 5", "Đường Hùng Vương", "Đường Bạch Đằng"];
+const loaiDiaDiem = ["Quán cơm", "Nhà nghỉ", "Quán bánh canh", "Quán phở", "Quán hủ tiếu", "Quán bún bò", "Quán cháo", "Quán lẩu", "Quán nướng", "Quán ốc", "Quán hải sản", "Quán ăn vặt", "Quán chè", "Nhà hàng", "Tiệm bánh", "Tiệm kem", "Tiệm trà sữa", "Quán cà phê", "Quán sinh tố", "Quán nhậu", "Khách sạn", "Khu nghỉ dưỡng", "Sân bóng đá", "Phòng tập gym", "Câu lạc bộ bida", "Sân cầu lông", "Sân Pickleball", "Hồ bơi", "Tiệm net", "Quán karaoke", "Khu vui chơi", "Nhà thiếu nhi", "Tiệm tạp hóa", "Trung tâm thương mại", "Cửa hàng tiện lợi", "Tiệm vàng", "Tiệm may", "Tiệm cắt tóc", "Tiệm trang điểm", "Thẩm mỹ viện", "Spa", "Tiệm giặt ủi", "Cửa hàng hoa tươi", "Cửa hàng thời trang", "Cửa hàng giày dép", "Tiệm sửa xe", "Cây xăng", "Tiệm kính mắt", "Cửa hàng điện thoại", "Cửa hàng điện máy", "Trung tâm ngoại ngữ", "Trung tâm tin học", "Phòng khám", "Tiệm thuốc tây", "Nhà thuốc", "Nha khoa", "Phòng chụp X-quang", "Phòng xét nghiệm", "Trung tâm tiêm chủng", "Bệnh viện mắt", "Phòng khám thú y", "Thư viện", "Tiệm đồng hồ", "Sạp thịt heo", "Quán ăn", "Quán lẩu bò", "Quán lẩu dê", "Tiệm cá cảnh", "Vật liệu xây dựng", "Nhà may", "Cửa hàng quần áo", "Cửa hàng đồ gia dụng", "Store sữa", "Tiệm vải", "Tiệm photocopy", "Cửa hàng văn phòng phẩm", "Tiệm cầm đồ", "Cửa hàng nội thất", "Cửa hàng xe đạp", "Cửa hàng xe máy", "Tiệm rửa xe", "Đại lý vé máy bay", "Phòng vé xe khách", "Vựa trái cây", "Cửa hàng trái cây nhập khẩu", "Vựa gạo", "Đại lý gas", "Đại lý nước tinh khiết", "Cửa hàng đồ chơi trẻ em", "Shop mẹ và bé", "Cửa hàng vật tư nông nghiệp", "Đại lý thức ăn chăn nuôi", "Cửa hàng phân bón", "Tiệm bánh xèo", "Quán bún riêu", "Quán bún mắm", "Quán hủ tiếu gõ", "Quán cơm tấm", "Cửa hàng xốp dán tường", "Tiệm sơn"];
+
 const khuVucMoi = [
     { xa: "Xã Trung Hiệp", ap: ["Ấp Rạch Ngay", "Ấp Mướp Sát", "Ấp Trung Hưng", "Ấp Bình Phụng", "Ấp Rạch Nưng", "Ấp Trung Trị", "Ấp Ruột Ngựa"] },
     { xa: "Xã Cái Nhum", ap: ["Ấp Phú An"] },
@@ -521,15 +510,32 @@ const khuVucCu = [
     { xa: "Xã Trung Thành Đông", ap: ["Ấp Đại Hòa", "Ấp Đại Nghĩa", "Ấp Đức Hòa", "Ấp Hòa Thuận", "Ấp Phú An", "Ấp Phú Nông"] },
     { xa: "Xã Trung Hiệp", ap: ["Ấp Bình Phụng", "Ấp Mướp Sát", "Ấp Rạch Ngay", "Ấp Rạch Nưng", "Ấp Ruột Ngựa", "Ấp Trung Hưng", "Ấp Trung Trị"] },
     { xa: "Xã Trung Thành", ap: ["Ấp 1", "Ấp 2", "Ấp An Điền 1", "Ấp An Điền 2", "Ấp An Lạc Đông", "Ấp An Lạc Tây", "Ấp An Nhơn", "Ấp An Thành Đông", "Ấp An Thành Tây", "Ấp An Trung", "Ấp Bình Thành", "Ấp Bình Trung", "Ấp Phong Thới", "Ấp Phước Lộc", "Ấp Rạch Trúc", "Ấp Trung Điền", "Ấp Trung Tín", "Ấp Trung Trạch", "Ấp Xuân Lộc", "Ấp Xuân Minh 1", "Ấp Xuân Minh 2"] },
-    { xa: "Xã Cái Nhum", ap: ["Ấp Phú An"] }
+    { xa: "Xã An Phước", ap: ["Ấp Phú An"] } // Đã đổi tên
 ];
 
 /* =========================================================
-   4. LOGIC TỰ ĐỘNG LƯU TRỮ (LocalStorage) CÀI ĐẶT
+   3. LOGIC CÀI ĐẶT & KÝ HIỆU
 ========================================================= */
 const addressTypeRadios = document.querySelectorAll('input[name="addressType"]');
 const checkAll = document.getElementById('checkAll');
 const xaListDiv = document.getElementById('xaList');
+const symbolInput = document.getElementById('symbolInput');
+
+// Ký hiệu tên
+symbolInput.value = localStorage.getItem('nameSymbol') || '';
+symbolInput.addEventListener('input', () => {
+    localStorage.setItem('nameSymbol', symbolInput.value);
+});
+
+// Sắp xếp
+let currentSort = localStorage.getItem('sortUsage') || 'default';
+document.getElementById('sortUsage').value = currentSort;
+
+function changeSortUsage() {
+    currentSort = document.getElementById('sortUsage').value;
+    localStorage.setItem('sortUsage', currentSort);
+    renderUsageList();
+}
 
 let currentType = localStorage.getItem('addressType') || 'moi';
 let savedXaMoi = JSON.parse(localStorage.getItem('savedXaMoi')) || khuVucMoi.map(k => k.xa);
@@ -585,16 +591,29 @@ addressTypeRadios.forEach(radio => {
 });
 
 /* =========================================================
-   5. LOGIC QUẢN LÝ "SỬ DỤNG GẦN ĐÂY" VÀ MODAL
+   4. LOGIC QUẢN LÝ "SỬ DỤNG GẦN ĐÂY" (Lưu 3 lịch sử)
 ========================================================= */
 let usageData = JSON.parse(localStorage.getItem('usageData')) || {};
 let currentEditingXa = null;
 
 function getUsageKey(xa) { return `${currentType}_${xa}`; }
+
 function getUsage(xa) {
     const key = getUsageKey(xa);
-    return usageData[key] || { lastUsed: null, prevUsed: null, note: "" };
+    let data = usageData[key] || { lastUsed: null, history: [], note: "" };
+    
+    // Auto-migrate old `prevUsed` string format to array `history`
+    if (data.prevUsed !== undefined) {
+        if (data.prevUsed !== null) {
+            data.history = [data.prevUsed];
+        } else {
+            data.history = [];
+        }
+        delete data.prevUsed;
+    }
+    return data;
 }
+
 function setUsage(xa, data) {
     const key = getUsageKey(xa);
     usageData[key] = data;
@@ -611,7 +630,10 @@ function getCurrentFormattedTime() {
 
 function markUsed(xa) {
     let data = getUsage(xa);
-    data.prevUsed = data.lastUsed;
+    if (data.lastUsed) {
+        data.history.push(data.lastUsed);
+        if (data.history.length > 3) data.history.shift(); // Chỉ giữ 3 mốc hoàn tác
+    }
     data.lastUsed = getCurrentFormattedTime();
     setUsage(xa, data);
     renderUsageList();
@@ -619,13 +641,17 @@ function markUsed(xa) {
 
 function undoUsed(xa) {
     let data = getUsage(xa);
-    if (data.prevUsed !== null) {
-        data.lastUsed = data.prevUsed;
-        data.prevUsed = null;
+    if (data.history && data.history.length > 0) {
+        data.lastUsed = data.history.pop();
+        setUsage(xa, data);
+        renderUsageList();
+    } else if (data.lastUsed) {
+        // Hết mốc thì quay về chưa dùng
+        data.lastUsed = null;
         setUsage(xa, data);
         renderUsageList();
     } else {
-        alert("Không có thao tác nào gần đây để hoàn tác cho xã này!");
+        alert("Không có lịch sử để hoàn tác!");
     }
 }
 
@@ -707,12 +733,15 @@ function saveTimeModal() {
 
     const formatted = parseManualTime(inputVal);
     if (!formatted) {
-        document.getElementById('modalError').textContent = 'Thời gian không hợp lệ. Hãy kiểm tra lại số liệu.';
+        document.getElementById('modalError').textContent = 'Thời gian không hợp lệ.';
         return;
     }
 
     let data = getUsage(currentEditingXa);
-    data.prevUsed = data.lastUsed;
+    if (data.lastUsed) {
+        data.history.push(data.lastUsed);
+        if (data.history.length > 3) data.history.shift();
+    }
     data.lastUsed = formatted;
     setUsage(currentEditingXa, data);
     
@@ -720,32 +749,61 @@ function saveTimeModal() {
     closeTimeModal();
 }
 
-function saveNoteLocal(xa, inputId, btnId) {
-    let data = getUsage(xa);
-    data.note = document.getElementById(inputId).value;
-    setUsage(xa, data);
-    
-    const btn = document.getElementById(btnId);
-    btn.textContent = "Đã lưu ✓";
-    btn.style.background = "#059669";
-    setTimeout(() => {
-        btn.textContent = "Lưu";
-        btn.style.background = "";
-    }, 2000);
+// Lưu Note bằng phím Enter
+function handleNoteEnter(e, xa, inputElement) {
+    if (e.key === 'Enter') {
+        let data = getUsage(xa);
+        data.note = inputElement.value;
+        setUsage(xa, data);
+        
+        // Nháy xanh báo thành công
+        inputElement.style.borderColor = "#10b981";
+        inputElement.style.backgroundColor = "#d1fae5";
+        setTimeout(() => {
+            inputElement.style.borderColor = "";
+            inputElement.style.backgroundColor = "";
+        }, 800);
+        
+        inputElement.blur();
+    }
+}
+
+// Chuyển string thành Timestamp để sắp xếp
+function parseToTimestamp(str) {
+    if (!str) return 0;
+    const parts = str.split(' ');
+    if (parts.length !== 2) return 0;
+    const time = parts[0].split(':');
+    const date = parts[1].split('/');
+    return new Date(date[2], date[1]-1, date[0], time[0], time[1], time[2]).getTime();
 }
 
 function renderUsageList() {
     const container = document.getElementById('usageListContainer');
     container.innerHTML = '';
     
-    const data = currentType === 'moi' ? khuVucMoi : khuVucCu;
+    const baseData = currentType === 'moi' ? khuVucMoi : khuVucCu;
+    let listToRender = [...baseData];
+
+    // Thuật toán sắp xếp
+    if (currentSort !== 'default') {
+        listToRender.sort((a, b) => {
+            let timeA = parseToTimestamp(getUsage(a.xa).lastUsed);
+            let timeB = parseToTimestamp(getUsage(b.xa).lastUsed);
+            if (currentSort === 'newest') return timeB - timeA;
+            if (currentSort === 'oldest') {
+                if (timeA === 0 && timeB !== 0) return 1; // Chưa dùng quăng xuống cuối
+                if (timeB === 0 && timeA !== 0) return -1;
+                return timeA - timeB;
+            }
+        });
+    }
     
-    data.forEach((item, index) => {
+    listToRender.forEach((item, index) => {
         const xa = item.xa;
         const uData = getUsage(xa);
         const timeDisplay = uData.lastUsed ? `<span>${uData.lastUsed}</span>` : "Chưa dùng";
         const noteId = `note_input_${index}`;
-        const btnId = `btn_note_${index}`;
 
         const clockIcon = `
             <div class="icon-btn" onclick="openTimeModal('${xa}')" title="Chỉnh sửa giờ">
@@ -768,8 +826,7 @@ function renderUsageList() {
                 <button class="btn-sm btn-undo" onclick="undoUsed('${xa}')">Hoàn tác</button>
             </div>
             <div class="note-row">
-                <input type="text" id="${noteId}" placeholder="Ghi chú" value="${uData.note}">
-                <button id="${btnId}" class="btn-sm btn-save-note" onclick="saveNoteLocal('${xa}', '${noteId}', '${btnId}')">Lưu</button>
+                <input type="text" id="${noteId}" placeholder="Nhập ghi chú rồi nhấn Enter" value="${uData.note}" onkeypress="handleNoteEnter(event, '${xa}', this)">
             </div>
         `;
         container.appendChild(div);
@@ -780,7 +837,7 @@ document.querySelector(`input[value="${currentType}"]`).checked = true;
 renderXaList();
 
 /* =========================================================
-   6. CÁC HÀM RANDOM
+   5. CÁC HÀM RANDOM
 ========================================================= */
 function randomItem(array) { return array[Math.floor(Math.random() * array.length)]; }
 function shuffle(array) {
@@ -796,7 +853,17 @@ function randomName() {
     const ho = laNam ? hoNam : hoNu;
     const tenDem = laNam ? tenDemNam : tenDemNu;
     const ten = laNam ? tenNam : tenNu;
-    return `${randomItem(ho)} ${randomItem(tenDem)} ${randomItem(ten)}`;
+    
+    let nameParts = [randomItem(ho), randomItem(tenDem), randomItem(ten)];
+    let symbol = document.getElementById('symbolInput').value.trim();
+    
+    // Nếu có điền ký hiệu, random nhét vào sau phần tử 0, 1 hoặc 2 (không bao giờ ở đầu)
+    if (symbol) {
+        let pos = Math.floor(Math.random() * nameParts.length); 
+        nameParts[pos] = nameParts[pos] + " " + symbol;
+    }
+    
+    return nameParts.join(" ").replace(/\s+/g, ' ').trim();
 }
 function randomSoNha() {
     const number = Math.floor(Math.random() * 800) + 1;
@@ -843,7 +910,7 @@ function randomAddress() {
     generatedRandomPart = parts.join(", ");
     
     if (currentType === 'cu') {
-        const huyen = (xa === "Xã Cái Nhum") ? "huyện Mang Thít" : "huyện Vũng Liêm";
+        const huyen = (xa === "Xã An Phước") ? "huyện Mang Thít" : "huyện Vũng Liêm";
         generatedAdminPart = `${xa}, ${huyen}, tỉnh Vĩnh Long`;
     } else {
         generatedAdminPart = `${xa}, tỉnh Vĩnh Long`;
@@ -853,7 +920,7 @@ function randomAddress() {
 }
 
 /* =========================================================
-   7. HÀM GIAO TIẾP VỚI GIAO DIỆN (GENERATE & COPY)
+   6. HÀM GIAO TIẾP VỚI GIAO DIỆN (GENERATE & COPY)
 ========================================================= */
 function generateAll() {
     const name = randomName();
